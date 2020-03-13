@@ -63,14 +63,19 @@ class Canvas(tk.Canvas):
 
     # Helper Method to check if a wall will cover up a player
     def validWall(self):
-        if (self.currRect_start_x > self.currRect_end_x):
+        # Get X Points
+        if (self.currRect_start_x == self.currRect_end_x):
+            x_points = [self.currRect_start_x]
+        elif (self.currRect_start_x > self.currRect_end_x):
             x_points = [n for n in range(
                 self.currRect_end_x, self.currRect_start_x)]
         else:
             x_points = [n for n in range(
                 self.currRect_start_x, self.currRect_end_x)]
 
-        if (self.currRect_start_y > self.currRect_end_y):
+        if (self.currRect_start_y == self.currRect_end_y):
+            y_points = [self.currRect_start_y]
+        elif (self.currRect_start_y > self.currRect_end_y):
             y_points = [n for n in range(
                 self.currRect_end_y, self.currRect_start_y)]
         else:
@@ -97,6 +102,12 @@ class Canvas(tk.Canvas):
                 elif x >= enemy_x1 and x <= enemy_x2 and y >= enemy_y1 and y <= enemy_y2:
                     return False
 
+        # Check if wall is in a different wall
+        for x in x_points:
+            for y in y_points:
+                for wall in self.walls:
+                    if x >= wall.x1 and x <= wall.x2 and y >= wall.y1 and y <= wall.y2:
+                        return False
         return True
 
     # Remove last Drawn Wall
@@ -105,7 +116,7 @@ class Canvas(tk.Canvas):
             self.delete(self.walls[-1].canvas_id)
             del self.walls[-1]
 
-        # Removes all Walls
+    # Removes all Walls
     def clearAll(self, event):
         if (len(self.walls) > 0):
             self.delete(tk.ALL)
@@ -119,13 +130,13 @@ class Canvas(tk.Canvas):
 
         if playerShape.shapeType == "Rectangle":
             canvas_id = self.create_rectangle(
-                playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, fill="red")
+                playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, fill="green")
             self.player = Player(
                 Shape(playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, "Rectangle", canvas_id))
 
         enemyShape = self.enemy.shape
         if enemyShape.shapeType == "Rectangle":
             canvas_id = self.create_rectangle(
-                enemyShape.x1, enemyShape.y1, enemyShape.x2, enemyShape.y2, fill="green")
+                enemyShape.x1, enemyShape.y1, enemyShape.x2, enemyShape.y2, fill="red")
             self.enemy = Enemy(
                 Shape(enemyShape.x1, enemyShape.y1, enemyShape.x2, enemyShape.y2, "Rectangle", canvas_id))
