@@ -3,6 +3,7 @@ import numpy as np
 from .pixel import Pixel
 from .enemy import Enemy
 from .player import Player
+from .shape import Shape
 
 
 class Canvas(tk.Canvas):
@@ -26,60 +27,67 @@ class Canvas(tk.Canvas):
         self.bind("<Button-3>", self.clearLast)
         self.bind("<Double-Button-3>", self.clearAll)
 
-        self.player = Player(800, 400, 25, 25)
-        self.enemy = Enemy(50, 50, 25, 25)
+        self.player = Player(Shape(800, 400, 825, 425, "Rectangle"))
+        self.enemy = Enemy(Shape(50, 50, 75, 75, "Rectangle"))
         self.drawPlayers()
 
     # Get start x and y on Click
     def buttonOneClick(self, event):
         self.currRect = None
-        self.start_x = event.x
-        self.start_y = event.y
+        self.currRect_start_x = event.x
+        self.currRect_start_y = event.y
 
     # Draw Rectangle as curser is moving
 
     def buttonOneMotion(self, event):
         if (self.currRect):
             self.delete(self.currRect)
-        self.end_x = event.x
-        self.end_y = event.y
-        self.currRect = self.create_rectangle(self.start_x, self.start_y,
-                                              self.end_x, self.end_y, width=1, fill="blue")
+        self.currRect_end_x = event.x
+        self.currRect_end_y = event.y
+        self.currRect = self.create_rectangle(self.currRect_start_x, self.currRect_start_y,
+                                              self.currRect_end_x, self.currRect_end_y, width=1, fill="blue")
 
     # Draw final wall and save it on Release
 
     def buttonOneRelease(self, event):
         if (self.currRect):
             self.delete(self.currRect)
-        self.end_x = event.x
-        self.end_y = event.y
+        self.currRect_end_x = event.x
+        self.currRect_end_y = event.y
 
         if (self.validWall()):
-            self.currRect = self.create_rectangle(self.start_x, self.start_y,
-                                                  self.end_x, self.end_y, width=1, fill="blue")
-            self.walls.append(self.currRect)
+            self.currRect = self.create_rectangle(self.currRect_start_x, self.currRect_start_y,
+                                                  self.currRect_end_x, self.currRect_end_y, width=1, fill="blue")
+            self.walls.append(Shape(self.currRect_start_x, self.currRect_start_y,
+                                    self.currRect_end_x, self.currRect_end_y, "Rectangle", self.currRect))
 
     # Helper Method to check if a wall will cover up a player
     def validWall(self):
-        if (self.start_x > self.end_x):
-            x_points = [n for n in range(self.end_x, self.start_x)]
+        if (self.currRect_start_x > self.currRect_end_x):
+            x_points = [n for n in range(
+                self.currRect_end_x, self.currRect_start_x)]
         else:
-            x_points = [n for n in range(self.start_x, self.end_x)]
+            x_points = [n for n in range(
+                self.currRect_start_x, self.currRect_end_x)]
 
-        if (self.start_y > self.end_y):
-            y_points = [n for n in range(self.end_y, self.start_y)]
+        if (self.currRect_start_y > self.currRect_end_y):
+            y_points = [n for n in range(
+                self.currRect_end_y, self.currRect_start_y)]
         else:
-            y_points = [n for n in range(self.start_y, self.end_y)]
+            y_points = [n for n in range(
+                self.currRect_start_y, self.currRect_end_y)]
 
-        player_x1 = self.player.x
-        player_x2 = self.player.x + self.player.width
-        player_y1 = self.player.y
-        player_y2 = self.player.y + self.player.height
+        playerShape = self.player.shape
+        player_x1 = playerShape.x1
+        player_x2 = playerShape.x2
+        player_y1 = playerShape.y1
+        player_y2 = playerShape.y2
 
-        enemy_x1 = self.enemy.x
-        enemy_x2 = self.enemy.x + self.enemy.width
-        enemy_y1 = self.enemy.y
-        enemy_y2 = self.enemy.y + self.enemy.height
+        enemyShape = self.enemy.shape
+        enemy_x1 = enemyShape.x1
+        enemy_x2 = enemyShape.x2
+        enemy_y1 = enemyShape.y1
+        enemy_y2 = enemyShape.y2
 
         # Check if wall is in player or enemy
         for x in x_points:
@@ -94,7 +102,7 @@ class Canvas(tk.Canvas):
     # Remove last Drawn Wall
     def clearLast(self, event):
         if (len(self.walls) > 0):
-            self.delete(self.walls[-1])
+            self.delete(self.walls[-1].canvas_id)
             del self.walls[-1]
 
         # Removes all Walls
@@ -107,7 +115,17 @@ class Canvas(tk.Canvas):
 
     # Draws enemy square and player square
     def drawPlayers(self):
-        self.create_rectangle(self.player.x, self.player.y, self.player.x +
-                              self.player.width, self.player.y + self.player.height, fill="red")
-        self.create_rectangle(self.enemy.x, self.enemy.y, self.enemy.x +
-                              self.enemy.width, self.enemy.y + self.enemy.height, fill="green")
+        playerShape = self.player.shape
+
+        if playerShape.shapeType == "Rectangle":
+            canvas_id = self.create_rectangle(
+                playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, fill="red")
+            self.player = Player(
+                Shape(playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, "Rectangle", canvas_id))
+
+        enemyShape = self.enemy.shape
+        if enemyShape.shapeType == "Rectangle":
+            canvas_id = self.create_rectangle(
+                enemyShape.x1, enemyShape.y1, enemyShape.x2, enemyShape.y2, fill="green")
+            self.enemy = Enemy(
+                Shape(enemyShape.x1, enemyShape.y1, enemyShape.x2, enemyShape.y2, "Rectangle", canvas_id))

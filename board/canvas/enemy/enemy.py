@@ -1,6 +1,9 @@
+from board.canvas.shape import Shape
+
+
 class Enemy():
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
+    def __init__(self, shape):
+        self.shape = shape
+
+    def __str__(self):
+        return self.sape.__str__()
