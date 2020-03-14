@@ -1,6 +1,5 @@
 import tkinter as tk
 import numpy as np
-from .pixel import Pixel
 from .enemy import Enemy
 from .player import Player
 from .shape import Shape
