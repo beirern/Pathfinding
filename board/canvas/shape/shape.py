@@ -4,6 +4,8 @@ class Shape:
         self.x2 = max(x1, x2)
         self.y1 = min(y1, y2)
         self.y2 = max(y1, y2)
+        self.height = self.y2 - self.y1
+        self.width = self.x2 - self.x1
         self.shapeType = shapeType
         self.canvas_id = canvas_id
 
