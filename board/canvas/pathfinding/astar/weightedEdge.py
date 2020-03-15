@@ -5,5 +5,8 @@ class WeightedEdge:
         self.pixelTo = pixelTo
         self.weight = weight
 
+    def __repr__(self):
+        return str(self)
+
     def __str__(self):
-        return "From: " + self.pixelFrom.__str__ + "\n To: " + self.pixelTo.__str__ + "\n Weight: " + str(weight)
+        return "From: " + str(self.pixelFrom) + "\n To: " + str(self.pixelTo) + "\n Weight: " + str(self.weight) + "\n"
