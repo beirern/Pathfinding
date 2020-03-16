@@ -5,6 +5,7 @@ from .player import Player
 from .shape import Shape
 from .pathfinding import AstarGraph
 from .pathfinding import Pixel
+from .pathfinding import PathfinderSolver
 
 
 class Canvas(tk.Canvas):
@@ -129,12 +130,20 @@ class Canvas(tk.Canvas):
     # Remove last Drawn Wall
     def clearLast(self, event):
         if (len(self.walls) > 0):
+            wall = self.walls[-1]
+            for j in range(wall.x1, wall.x2 + 1):
+                for i in range(wall.y1, wall.y2 + 1):
+                    self.pixels[i][j].is_movable_to = True
             self.delete(self.walls[-1].canvas_id)
             del self.walls[-1]
 
     # Removes all Walls
     def clearAll(self, event):
         if (len(self.walls) > 0):
+            for wall in self.walls:
+                for j in range(wall.x1, wall.x2 + 1):
+                    for i in range(wall.y1, wall.y2 + 1):
+                        self.pixels[i][j].is_movable_to = True
             self.delete(tk.ALL)
             self.walls = []
 
@@ -150,10 +159,6 @@ class Canvas(tk.Canvas):
                 playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, fill="green")
             self.player = Player(
                 Shape(playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, "Rectangle", canvas_id))
-            # Update Pixel Array
-            for j in range(self.player.shape.x1, self.player.shape.x2 + 1):
-                for i in range(self.player.shape.y1, self.player.shape.y2 + 1):
-                    self.pixels[i][j].is_movable_to = False
 
         enemyShape = self.enemy.shape
         if enemyShape.shapeType == "Rectangle":
@@ -169,5 +174,19 @@ class Canvas(tk.Canvas):
 
     def startGame(self, event):
         graph = AstarGraph(self.pixels, self.enemy)
+        pathfinder = PathfinderSolver(graph)
+        result = pathfinder.findShortestPath(
+            self.pixels[62][62], self.pixels[412][812])
 
-        graph.neighbors(self.pixels[62][62])
+        if result.outcome == "SOLVED":
+            print("DONE")
+            self.print_path(result.solution)
+        elif result.outcome == "UNSOLVABLE":
+            print("Unsolvable!")
+        else:
+            print("Timed Out!")
+
+    def print_path(self, solution):
+        for i in range(len(solution) - 1):
+            self.create_line(solution[i].x, solution[i].y,
+                             solution[i+1].x, solution[i+1].y)
