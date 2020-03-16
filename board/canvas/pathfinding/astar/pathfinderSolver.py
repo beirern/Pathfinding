@@ -16,8 +16,6 @@ class PathfinderSolver:
     # Finds the shortest path from a start pixel to an end pixel
     def findShortestPath(self, start, end):
         solution = []
-        F = open("log.txt", "w")
-        F.write("Start\n")
 
         # Timeout will be called after 10 minutes
         # Each minute
@@ -73,8 +71,6 @@ class PathfinderSolver:
                     self.previous[edge.pixel_to] = pixel
                     self.queue.append(
                         (self.dist_to[edge.pixel_to] + self.graph.estimated_distance_to_goal(edge.pixel_to, end), edge.pixel_to))
-            F = open("log.txt", "a")
-            F.write(str(self.queue[0]) + "\n")
             heapq.heapify(self.queue)
 
         print("HAN")
