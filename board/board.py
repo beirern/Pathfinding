@@ -19,4 +19,19 @@ class Board(tk.Frame):
         self.sidebar = Sidebar(self, width=int(width*0.2), height=height)
         self.sidebar.pack(side=tk.LEFT)
 
+        self.sidebar.save_button.bind('<Button-1>', self.saveLevel)
+
         self.pack()
+
+    def saveLevel(self, event):
+        file = open("Level1.txt", "w")
+        enemy = self.canvas.enemy
+        player = self.canvas.player
+        walls = self.canvas.walls
+        file.write(str(enemy))
+
+        file = open("Level1.txt", "a")
+        file.write("\n" + str(player) + "\n")
+
+        for wall in walls:
+            file.write(str(wall))
