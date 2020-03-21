@@ -42,7 +42,7 @@ class Canvas(tk.Canvas):
         self.drawPlayers()
 
         # Enter to Start Game
-        self.bind("<Tab>", self.startGame)
+        # self.bind("<Tab>", self.startGame)
 
     # Get start x and y on Click
     def buttonOneClick(self, event):
@@ -65,8 +65,11 @@ class Canvas(tk.Canvas):
     def buttonOneRelease(self, event):
         if (self.currRect):
             self.delete(self.currRect)
-        self.currRect_end_x = event.x
-        self.currRect_end_y = event.y
+
+        self.currRect_end_x = max(event.x, 0)
+        self.currRect_end_y = max(event.y, 0)
+        self.currRect_end_x = min(self.currRect_end_x, self.width - 1)
+        self.currRect_end_y = min(self.currRect_end_y, self.height - 1)
 
         if (self.validWall()):
             self.currRect = self.create_rectangle(self.currRect_start_x, self.currRect_start_y,
