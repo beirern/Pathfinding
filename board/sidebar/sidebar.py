@@ -11,8 +11,8 @@ class Sidebar(tk.Frame):
         # label.image = square_image
         # label.grid(row=0)
 
-        save_button = tk.Button(self, text="Save", fg="blue")
-        save_button.grid(row=1)
+        self.save_button = tk.Button(self, text="Save", fg="blue")
+        self.save_button.grid(row=1)
 
         self.width = width
         self.height = height
