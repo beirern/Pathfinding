@@ -6,6 +6,7 @@ from .shape import Shape
 from .pathfinding import AstarGraph
 from .pathfinding import Pixel
 from .pathfinding import PathfinderSolver
+from .pathfinding import KDTree
 
 
 class Canvas(tk.Canvas):
@@ -44,7 +45,7 @@ class Canvas(tk.Canvas):
         self.drawPlayers()
 
         # Enter to Start Game
-        # self.bind("<Tab>", self.startGame)
+        self.bind("<Tab>", self.startGame)
 
     # Get start x and y on Click
     def buttonOneClick(self, event):
@@ -178,6 +179,9 @@ class Canvas(tk.Canvas):
                     self.pixels[i][j].is_movable_to = False
 
     def startGame(self, event):
+        kdtree = KDTree(self.pixels)
+
+    def astar(self):
         graph = AstarGraph(self.pixels, self.enemy)
         pathfinder = PathfinderSolver(graph)
         result = pathfinder.findShortestPath(
