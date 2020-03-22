@@ -15,6 +15,8 @@ class Canvas(tk.Canvas):
 
         self.currRect = None
 
+        self.waypoints = 100
+
         self.width = width
         self.height = height
 
@@ -22,9 +24,9 @@ class Canvas(tk.Canvas):
 
         # Set up array of Pixels
         self.pixels = []
-        for i in range(self.height):
+        for i in range(0, self.height, int(self.height / self.waypoints)):
             self.pixels.append([])
-            for j in range(self.width):
+            for j in range(0, self.width, int(self.width / self.waypoints)):
                 self.pixels[-1].append(Pixel(j,
                                              i, i * len(self.pixels[0]) + j, True))
 
