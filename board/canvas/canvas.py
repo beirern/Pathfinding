@@ -42,8 +42,8 @@ class Canvas(tk.Canvas):
         self.bind("<Button-3>", self.clearLast)
         self.bind("<Double-Button-3>", self.clearAll)
 
-        self.player = Player(Shape(800, 400, 824, 424, "Rectangle"))
-        self.enemy = Enemy(Shape(50, 50, 74, 74, "Rectangle"))
+        self.player = Player(Shape(800, 400, 824, 424, "RECTANGLE"))
+        self.enemy = Enemy(Shape(50, 50, 74, 74, "RECTANGLE"))
         self.drawPlayers()
 
         # Enter to Start Game
@@ -83,23 +83,25 @@ class Canvas(tk.Canvas):
                 self.currRect = self.create_rectangle(self.currRect_start_x, self.currRect_start_y,
                                                       self.currRect_end_x, self.currRect_end_y, width=1, fill="blue")
                 self.walls.append(Shape(self.currRect_start_x, self.currRect_start_y,
-                                        self.currRect_end_x, self.currRect_end_y, 'Rectangle', self.currRect))
+                                        self.currRect_end_x, self.currRect_end_y, 'RECTANGLE', self.currRect))
 
                 for j in range(self.walls[-1].x1, self.walls[-1].x2 + 1):
                     for i in range(self.walls[-1].y1, self.walls[-1].y2 + 1):
                         self.pixels[i][j].is_movable_to = False
 
         if self.object == 'WAYPOINT':
-            if self.valid_waypoint(Shape(event.x, event.y, event.x, event.y, 'Rectangle')):
+            x = max(event.x, 0)
+            x = min(x, self.width - 1)
+            y = max(event.y, 0)
+            y = min(y, self.height - 1)
+
+            if self.valid_waypoint(Shape(x, y, x, y, 'RECTANGLE')):
                 waypoint = self.create_rectangle(
-                    event.x, event.y, event.x, event.y, fill="yellow")
+                    x, y, x, y, fill="yellow")
                 self.waypoints.append(
-                    Shape(event.x, event.y, event.x, event.y, 'Rectangle', waypoint))
+                    Shape(x, y, x, y, 'RECTANGLE', waypoint))
 
-                self.pixels[event.y][event.x].is_movable_to = False
-
-        print(str(self.walls))
-        print(str(self.waypoints))
+                self.pixels[y][x].is_movable_to = False
 
     # Helper Method to check if a wall will cover up a player
     def valid_wall(self):
@@ -219,20 +221,20 @@ class Canvas(tk.Canvas):
     def drawPlayers(self):
         playerShape = self.player.shape
 
-        if playerShape.shapeType == "Rectangle":
+        if playerShape.shapeType == 'RECTANGLE':
             # Draw Player
             canvas_id = self.create_rectangle(
                 playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, fill="green")
             self.player = Player(
-                Shape(playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, "Rectangle", canvas_id))
+                Shape(playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, 'RECTANGLE', canvas_id))
 
         enemyShape = self.enemy.shape
-        if enemyShape.shapeType == "Rectangle":
+        if enemyShape.shapeType == 'RECTANGLE':
             # Draw Enemy
             canvas_id = self.create_rectangle(
                 enemyShape.x1, enemyShape.y1, enemyShape.x2, enemyShape.y2, fill="red")
             self.enemy = Enemy(
-                Shape(enemyShape.x1, enemyShape.y1, enemyShape.x2, enemyShape.y2, "Rectangle", canvas_id))
+                Shape(enemyShape.x1, enemyShape.y1, enemyShape.x2, enemyShape.y2, 'RECTANGLE', canvas_id))
             # Update Pixel Array
             for j in range(self.enemy.shape.x1, self.enemy.shape.x2 + 1):
                 for i in range(self.enemy.shape.y1, self.enemy.shape.y2 + 1):
