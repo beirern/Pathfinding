@@ -26,17 +26,23 @@ class Board(tk.Frame):
         self.pack()
 
     def saveLevel(self, event):
-        file = open("Level1.txt", "w")
+        file = open('Level1.txt', 'w')
         enemy = self.canvas.enemy
         player = self.canvas.player
         walls = self.canvas.walls
+        waypoints = self.canvas.waypoints
+        file.write(str(player))
+
+        file = open('Level1.txt', 'a')
         file.write(str(enemy))
 
-        file = open("Level1.txt", "a")
-        file.write("\n" + str(player) + "\n")
-
+        file.write('Walls:' + '\n')
         for wall in walls:
             file.write(str(wall))
+
+        file.write('Waypoints:' + '\n')
+        for waypoint in waypoints:
+            file.write(str(waypoint))
 
     def set_wall(self, event):
         self.canvas.object = 'WALL'
