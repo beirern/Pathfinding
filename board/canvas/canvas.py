@@ -14,20 +14,22 @@ class Canvas(tk.Canvas):
         super().__init__(master=master, width=width, height=height)
         self.pack()
 
-        self.currRect = None
+        # Holds whether WALL or WAYPOINT
+        self.object = 'WALL'
 
-        self.waypoints = 100
+        self.currRect = None
 
         self.width = width
         self.height = height
 
         self.walls = []
+        self.waypoints = []
 
         # Set up array of Pixels
         self.pixels = []
-        for i in range(0, self.height, int(self.height / self.waypoints)):
+        for i in range(self.height):
             self.pixels.append([])
-            for j in range(0, self.width, int(self.width / self.waypoints)):
+            for j in range(self.width):
                 self.pixels[-1].append(Pixel(j,
                                              i, i * len(self.pixels[0]) + j, True))
 
@@ -49,43 +51,58 @@ class Canvas(tk.Canvas):
 
     # Get start x and y on Click
     def buttonOneClick(self, event):
-        self.currRect = None
-        self.currRect_start_x = event.x
-        self.currRect_start_y = event.y
+        if self.object == 'WALL':
+            self.currRect = None
+            self.currRect_start_x = event.x
+            self.currRect_start_y = event.y
 
     # Draw Rectangle as curser is moving
 
     def buttonOneMotion(self, event):
-        if (self.currRect):
-            self.delete(self.currRect)
-        self.currRect_end_x = event.x
-        self.currRect_end_y = event.y
-        self.currRect = self.create_rectangle(self.currRect_start_x, self.currRect_start_y,
-                                              self.currRect_end_x, self.currRect_end_y, width=1, fill="blue")
+        if self.object == 'WALL':
+            if (self.currRect):
+                self.delete(self.currRect)
+            self.currRect_end_x = event.x
+            self.currRect_end_y = event.y
+            self.currRect = self.create_rectangle(self.currRect_start_x, self.currRect_start_y,
+                                                  self.currRect_end_x, self.currRect_end_y, width=1, fill="blue")
 
     # Draw final wall and save it on Release
 
     def buttonOneRelease(self, event):
-        if (self.currRect):
-            self.delete(self.currRect)
+        if self.object == 'WALL':
+            if (self.currRect):
+                self.delete(self.currRect)
 
-        self.currRect_end_x = max(event.x, 0)
-        self.currRect_end_y = max(event.y, 0)
-        self.currRect_end_x = min(self.currRect_end_x, self.width - 1)
-        self.currRect_end_y = min(self.currRect_end_y, self.height - 1)
+            self.currRect_end_x = max(event.x, 0)
+            self.currRect_end_y = max(event.y, 0)
+            self.currRect_end_x = min(self.currRect_end_x, self.width - 1)
+            self.currRect_end_y = min(self.currRect_end_y, self.height - 1)
 
-        if (self.validWall()):
-            self.currRect = self.create_rectangle(self.currRect_start_x, self.currRect_start_y,
-                                                  self.currRect_end_x, self.currRect_end_y, width=1, fill="blue")
-            self.walls.append(Shape(self.currRect_start_x, self.currRect_start_y,
-                                    self.currRect_end_x, self.currRect_end_y, "Rectangle", self.currRect))
+            if (self.valid_wall()):
+                self.currRect = self.create_rectangle(self.currRect_start_x, self.currRect_start_y,
+                                                      self.currRect_end_x, self.currRect_end_y, width=1, fill="blue")
+                self.walls.append(Shape(self.currRect_start_x, self.currRect_start_y,
+                                        self.currRect_end_x, self.currRect_end_y, 'Rectangle', self.currRect))
 
-            for j in range(self.walls[-1].x1, self.walls[-1].x2 + 1):
-                for i in range(self.walls[-1].y1, self.walls[-1].y2 + 1):
-                    self.pixels[i][j].is_movable_to = False
+                for j in range(self.walls[-1].x1, self.walls[-1].x2 + 1):
+                    for i in range(self.walls[-1].y1, self.walls[-1].y2 + 1):
+                        self.pixels[i][j].is_movable_to = False
+
+        if self.object == 'WAYPOINT':
+            if self.valid_waypoint(Shape(event.x, event.y, event.x, event.y, 'Rectangle')):
+                waypoint = self.create_rectangle(
+                    event.x, event.y, event.x, event.y, fill="yellow")
+                self.waypoints.append(
+                    Shape(event.x, event.y, event.x, event.y, 'Rectangle', waypoint))
+
+                self.pixels[event.y][event.x].is_movable_to = False
+
+        print(str(self.walls))
+        print(str(self.waypoints))
 
     # Helper Method to check if a wall will cover up a player
-    def validWall(self):
+    def valid_wall(self):
         # Get X Points
         if (self.currRect_start_x == self.currRect_end_x):
             x_points = [self.currRect_start_x]
@@ -131,29 +148,72 @@ class Canvas(tk.Canvas):
                 for wall in self.walls:
                     if x >= wall.x1 and x <= wall.x2 and y >= wall.y1 and y <= wall.y2:
                         return False
+
+        # Check if wall is in a waypoint
+        for x in x_points:
+            for y in y_points:
+                for waypoint in self.waypoints:
+                    if x >= waypoint.x1 and x <= waypoint.x2 and y >= waypoint.y1 and y <= waypoint.y2:
+                        return False
+        return True
+
+    def valid_waypoint(self, waypoint):
+        playerShape = self.player.shape
+        enemyShape = self.enemy.shape
+
+        # Check if waypoint is in player or enemy
+        if waypoint.x1 >= playerShape.x1 and waypoint.x1 <= playerShape.x2 and waypoint.y1 >= playerShape.y1 and waypoint.y1 <= playerShape.y2:
+            return False
+        elif waypoint.x1 >= enemyShape.x1 and waypoint.x1 <= enemyShape.x2 and waypoint.y1 >= enemyShape.y1 and waypoint.y1 <= enemyShape.y2:
+            return False
+
+        # Check if waypoint in a wall
+        for wall in self.walls:
+            if waypoint.x1 >= wall.x1 and waypoint.x2 <= wall.x2 and waypoint.y1 >= wall.y1 and waypoint.y2 <= wall.y2:
+                return False
+
+        # Check if waypoint is in a waypoint
+        for list_waypoint in self.waypoints:
+            if waypoint.x1 == list_waypoint.x1 and waypoint.y1 == list_waypoint.y1:
+                return False
+
         return True
 
     # Remove last Drawn Wall
     def clearLast(self, event):
-        if (len(self.walls) > 0):
-            wall = self.walls[-1]
-            for j in range(wall.x1, wall.x2 + 1):
-                for i in range(wall.y1, wall.y2 + 1):
-                    self.pixels[i][j].is_movable_to = True
-            self.delete(self.walls[-1].canvas_id)
-            del self.walls[-1]
-
-    # Removes all Walls
-    def clearAll(self, event):
-        if (len(self.walls) > 0):
-            for wall in self.walls:
+        if self.object == 'WALL':
+            if (len(self.walls) > 0):
+                wall = self.walls[-1]
                 for j in range(wall.x1, wall.x2 + 1):
                     for i in range(wall.y1, wall.y2 + 1):
                         self.pixels[i][j].is_movable_to = True
-            self.delete(tk.ALL)
-            self.walls = []
+                self.delete(self.walls[-1].canvas_id)
+                del self.walls[-1]
 
-            self.drawPlayers()
+        if self.object == 'WAYPOINT':
+            if (len(self.waypoints) > 0):
+                waypoint = self.waypoints[-1]
+                self.pixels[waypoint.y1][waypoint.x1].is_movable_to = True
+                self.delete(self.waypoints[-1].canvas_id)
+                del self.waypoints[-1]
+
+    # Removes all Walls
+    def clearAll(self, event):
+        if self.object == 'WALL':
+            if (len(self.walls) > 0):
+                for wall in self.walls:
+                    for j in range(wall.x1, wall.x2 + 1):
+                        for i in range(wall.y1, wall.y2 + 1):
+                            self.pixels[i][j].is_movable_to = True
+                    self.delete(wall.canvas_id)
+                self.walls = []
+
+        if self.object == 'WAYPOINT':
+            if (len(self.waypoints) > 0):
+                for waypoint in self.waypoints:
+                    self.pixels[waypoint.y1][waypoint.x1].is_movable_to = True
+                    self.delete(waypoint.canvas_id)
+                self.waypoints = []
 
     # Draws enemy square and player square
     def drawPlayers(self):
