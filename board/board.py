@@ -20,6 +20,8 @@ class Board(tk.Frame):
         self.sidebar.pack(side=tk.LEFT)
 
         self.sidebar.save_button.bind('<Button-1>', self.saveLevel)
+        self.sidebar.wall.bind('<Button-1>', self.set_wall)
+        self.sidebar.waypoint.bind('<Button-1>', self.set_waypoint)
 
         self.pack()
 
@@ -35,3 +37,9 @@ class Board(tk.Frame):
 
         for wall in walls:
             file.write(str(wall))
+
+    def set_wall(self, event):
+        self.canvas.object = 'WALL'
+
+    def set_waypoint(self, event):
+        self.canvas.object = 'WAYPOINT'
