@@ -3,16 +3,23 @@ import tkinter as tk
 
 class Sidebar(tk.Frame):
     def __init__(self, master=None, width=0, height=0):
-        super().__init__(master=master, width=width, height=height, bg="grey")
+        super().__init__(master=master, width=width, height=height)
         self.pack()
 
-        # square_image = tk.PhotoImage(file="./static/square.png")
-        # label = tk.Label(self, image=square_image)
-        # label.image = square_image
-        # label.grid(row=0)
+        # Radio Buttons
+        self.v = tk.IntVar()
+        self.v.set(1)
 
+        self.wall = tk.Radiobutton(
+            self, text="Walls", variable=self.v, value=1)
+        self.wall.grid(row=0)
+        self.waypoint = tk.Radiobutton(
+            self, text="Waypoints", variable=self.v, value=2)
+        self.waypoint.grid(row=1)
+
+        # Save Button
         self.save_button = tk.Button(self, text="Save", fg="blue")
-        self.save_button.grid(row=1)
+        self.save_button.grid(row=2)
 
         self.width = width
         self.height = height
