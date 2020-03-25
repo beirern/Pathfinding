@@ -11,3 +11,6 @@ class Shape:
 
     def __str__(self):
         return "x1: " + str(self.x1) + ", x2: " + str(self.x2) + ", y1: " + str(self.y1) + ", y2: " + str(self.y2) + ", Shape: " + str(self.shapeType) + ", id: " + str(self.canvas_id) + '\n'
+
+    def __repr__(self):
+        return str(self)
