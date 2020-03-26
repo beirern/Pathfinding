@@ -6,4 +6,4 @@ class Enemy():
         self.shape = shape
 
     def __str__(self):
-        return self.shape.__str__()
+        return str(self.shape)
