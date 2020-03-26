@@ -1,4 +1,5 @@
 import tkinter as tk
+import re
 import numpy as np
 from .enemy import Enemy
 from .player import Player
@@ -42,9 +43,9 @@ class Canvas(tk.Canvas):
         self.bind("<Button-3>", self.clearLast)
         self.bind("<Double-Button-3>", self.clearAll)
 
-        self.player = Player(Shape(800, 400, 824, 424, "RECTANGLE"))
-        self.enemy = Enemy(Shape(50, 50, 74, 74, "RECTANGLE"))
-        self.drawPlayers()
+        self.player = Player(Shape(800, 400, 824, 424, 'RECTANGLE'))
+        self.enemy = Enemy(Shape(50, 50, 74, 74, 'RECTANGLE'))
+        # self.drawPlayers()
 
         # Enter to Start Game
         self.bind("<Tab>", self.startGame)
@@ -261,3 +262,47 @@ class Canvas(tk.Canvas):
         for i in range(len(solution) - 1):
             self.create_line(solution[i].x, solution[i].y,
                              solution[i+1].x, solution[i+1].y)
+
+    def load_level(self, lines):
+        # Make Player
+        player_line = lines[0].strip()
+        fields = re.split('\s', player_line)
+
+        self.player = Player(Shape(
+            int(fields[0]), int(fields[1]), int(fields[2]), int(fields[3]), fields[4]))
+
+        # Make Enemy
+        enemy_line = lines[1].strip()
+        fields = re.split('\s', enemy_line)
+
+        self.enemy = Enemy(Shape(int(fields[0]), int(
+            fields[1]), int(fields[2]), int(fields[3]), fields[4]))
+
+        # Fill Walls and Waypoints Array
+        lines = lines[3:]
+        walls = True
+        for line in lines:
+            line = line.strip()
+            if line == 'Waypoints:':
+                walls = False
+            else:
+                fields = re.split('\s', line)
+                if walls:
+                    self.walls.append(Shape(int(fields[0]), int(
+                        fields[1]), int(fields[2]), int(fields[3]), fields[4]))
+                else:
+                    self.waypoints.append(Shape(int(fields[0]), int(
+                        fields[1]), int(fields[2]), int(fields[3]), fields[4]))
+
+        self.drawPlayers()
+        self.draw_walls()
+
+    def draw_walls(self):
+        for wall in self.walls:
+            draw_wall = self.create_rectangle(
+                wall.x1, wall.y1, wall.x2, wall.y2, width=1, fill="blue")
+            wall.canvas_id = draw_wall
+
+            for j in range(wall.x1, wall.x2 + 1):
+                for i in range(wall.y1, wall.y2 + 1):
+                    self.pixels[i][j].is_movable_to = False
