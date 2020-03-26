@@ -23,6 +23,7 @@ class Board(tk.Frame):
         self.sidebar.load_button.bind('<Button-1>', self.loadLevel)
         self.sidebar.wall.bind('<Button-1>', self.set_wall)
         self.sidebar.waypoint.bind('<Button-1>', self.set_waypoint)
+        self.sidebar.editable.bind('<Button-1>', self.set_editable)
 
         self.pack()
 
@@ -58,3 +59,6 @@ class Board(tk.Frame):
 
     def set_waypoint(self, event):
         self.canvas.object = 'WAYPOINT'
+
+    def set_editable(self, event):
+        self.canvas.set_editable()
