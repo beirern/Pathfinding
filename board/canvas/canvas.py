@@ -18,6 +18,9 @@ class Canvas(tk.Canvas):
         # Holds whether WALL or WAYPOINT
         self.object = 'WALL'
 
+        # Whether to allow editing
+        self.editable = True
+
         self.currRect = None
 
         self.width = width
@@ -34,21 +37,13 @@ class Canvas(tk.Canvas):
                 self.pixels[-1].append(Pixel(j,
                                              i, i * len(self.pixels[0]) + j, True))
 
-        # Left Click for making Walls
-        self.bind("<Button-1>", self.buttonOneClick)
-        self.bind("<B1-Motion>", self.buttonOneMotion)
-        self.bind("<ButtonRelease-1>", self.buttonOneRelease)
-
-        # Right Click Deletes Walls
-        self.bind("<Button-3>", self.clearLast)
-        self.bind("<Double-Button-3>", self.clearAll)
+        # Bind everything
+        # Bind and Unbind Tab to hold variable
+        self.start_game = self.bind("<Tab>", self.startGame)
+        self.set_binds()
 
         self.player = Player(Shape(800, 400, 824, 424, 'RECTANGLE'))
         self.enemy = Enemy(Shape(50, 50, 74, 74, 'RECTANGLE'))
-        # self.drawPlayers()
-
-        # Enter to Start Game
-        self.bind("<Tab>", self.startGame)
 
     # Get start x and y on Click
     def buttonOneClick(self, event):
@@ -161,26 +156,7 @@ class Canvas(tk.Canvas):
         return True
 
     def valid_waypoint(self, waypoint):
-        playerShape = self.player.shape
-        enemyShape = self.enemy.shape
-
-        # Check if waypoint is in player or enemy
-        if waypoint.x1 >= playerShape.x1 and waypoint.x1 <= playerShape.x2 and waypoint.y1 >= playerShape.y1 and waypoint.y1 <= playerShape.y2:
-            return False
-        elif waypoint.x1 >= enemyShape.x1 and waypoint.x1 <= enemyShape.x2 and waypoint.y1 >= enemyShape.y1 and waypoint.y1 <= enemyShape.y2:
-            return False
-
-        # Check if waypoint in a wall
-        for wall in self.walls:
-            if waypoint.x1 >= wall.x1 and waypoint.x2 <= wall.x2 and waypoint.y1 >= wall.y1 and waypoint.y2 <= wall.y2:
-                return False
-
-        # Check if waypoint is in a waypoint
-        for list_waypoint in self.waypoints:
-            if waypoint.x1 == list_waypoint.x1 and waypoint.y1 == list_waypoint.y1:
-                return False
-
-        return True
+        return self.pixels[waypoint.y1][waypoint.x1].is_movable_to
 
     # Remove last Drawn Wall
     def clearLast(self, event):
@@ -228,6 +204,10 @@ class Canvas(tk.Canvas):
                 playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, fill="green")
             self.player = Player(
                 Shape(playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, 'RECTANGLE', canvas_id))
+            # Update Pixel Array
+            for j in range(playerShape.x1, playerShape.x2 + 1):
+                for i in range(playerShape.y1, playerShape.y2 + 1):
+                    self.pixels[i][j].is_movable_to = False
 
         enemyShape = self.enemy.shape
         if enemyShape.shapeType == 'RECTANGLE':
@@ -237,12 +217,13 @@ class Canvas(tk.Canvas):
             self.enemy = Enemy(
                 Shape(enemyShape.x1, enemyShape.y1, enemyShape.x2, enemyShape.y2, 'RECTANGLE', canvas_id))
             # Update Pixel Array
-            for j in range(self.enemy.shape.x1, self.enemy.shape.x2 + 1):
-                for i in range(self.enemy.shape.y1, self.enemy.shape.y2 + 1):
+            for j in range(enemyShape.x1, enemyShape.x2 + 1):
+                for i in range(enemyShape.y1, enemyShape.y2 + 1):
                     self.pixels[i][j].is_movable_to = False
 
     def startGame(self, event):
-        kdtree = KDTree(self.pixels)
+        if self.player != None and self.enemy != None:
+            kdtree = KDTree(self.pixels)
 
     def astar(self):
         graph = AstarGraph(self.pixels, self.enemy)
@@ -279,6 +260,8 @@ class Canvas(tk.Canvas):
             fields[1]), int(fields[2]), int(fields[3]), fields[4]))
 
         # Fill Walls and Waypoints Array
+        self.walls = []
+        self.waypoints = []
         lines = lines[3:]
         walls = True
         for line in lines:
@@ -306,3 +289,38 @@ class Canvas(tk.Canvas):
             for j in range(wall.x1, wall.x2 + 1):
                 for i in range(wall.y1, wall.y2 + 1):
                     self.pixels[i][j].is_movable_to = False
+
+    def set_editable(self):
+        self.editable = not self.editable
+
+        if self.editable:
+            self.set_binds()
+        else:
+            self.set_unbinds()
+
+    def set_binds(self):
+        # Left Click for making Objects
+        self.left_click = self.bind("<Button-1>", self.buttonOneClick)
+        self.left_motion = self.bind("<B1-Motion>", self.buttonOneMotion)
+        self.left_release = self.bind(
+            "<ButtonRelease-1>", self.buttonOneRelease)
+
+        # Right Click Deletes Objects
+        self.right_click = self.bind("<Button-3>", self.clearLast)
+        self.right_double_click = self.bind("<Double-Button-3>", self.clearAll)
+
+        # Unbind Tab (opposite to mouse binds)
+        self.unbind("<Tab>", self.start_game)
+
+    def set_unbinds(self):
+        # Unbind Left Click
+        self.unbind("<Button-1>", self.left_click)
+        self.unbind("<B1-Motion>", self.left_motion)
+        self.unbind("<ButtonRelease-1>", self.left_release)
+
+        # Unbind Right Click
+        self.unbind("<Button-3>", self.right_click)
+        self.unbind("<Double-Button-3>", self.right_double_click)
+
+        # Tab to Start Game (Works opposite of mouse binds)
+        self.start_game = self.bind("<Tab>", self.startGame)
