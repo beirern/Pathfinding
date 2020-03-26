@@ -24,6 +24,8 @@ class Board(tk.Frame):
         self.sidebar.wall.bind('<Button-1>', self.set_wall)
         self.sidebar.waypoint.bind('<Button-1>', self.set_waypoint)
         self.sidebar.editable.bind('<Button-1>', self.set_editable)
+        self.sidebar.player.bind('<Button-1>', self.set_player)
+        self.sidebar.enemy.bind('<Button-1>', self.set_enemy)
 
         self.pack()
 
@@ -33,24 +35,29 @@ class Board(tk.Frame):
         player = self.canvas.player
         walls = self.canvas.walls
         waypoints = self.canvas.waypoints
-        file.write(str(player))
+        file.write(str(player) + '\n')
 
         file = open('Level1.txt', 'a')
-        file.write(str(enemy))
+        file.write(str(enemy) + '\n')
 
-        file.write('Walls:' + '\n')
+        file.write('Walls:')
         for wall in walls:
-            file.write(str(wall))
+            file.write('\n' + str(wall))
 
-        file.write('Waypoints:' + '\n')
+        file.write('\n' + 'Waypoints:')
         for waypoint in waypoints:
-            file.write(str(waypoint))
+            file.write('\n' + str(waypoint))
 
         file.close()
 
     def loadLevel(self, event):
         file = open('Level1.txt', 'r')
         lines = file.readlines()
+
+        if self.sidebar.v1.get() == 0:
+            self.sidebar.v1.set(1)
+        elif self.sidebar.v1.get() == 1:
+            self.sidebar.v1.set(0)
 
         self.canvas.load_level(lines)
 
@@ -59,6 +66,12 @@ class Board(tk.Frame):
 
     def set_waypoint(self, event):
         self.canvas.object = 'WAYPOINT'
+
+    def set_player(self, event):
+        self.canvas.object = 'PLAYER'
+
+    def set_enemy(self, event):
+        self.canvas.object = 'ENEMY'
 
     def set_editable(self, event):
         self.canvas.set_editable()
