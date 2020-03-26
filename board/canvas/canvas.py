@@ -16,7 +16,7 @@ class Canvas(tk.Canvas):
         self.pack()
 
         # Holds whether WALL or WAYPOINT
-        self.object = 'WALL'
+        self.object = 'PLAYER'
 
         # Whether to allow editing
         self.editable = True
@@ -42,12 +42,12 @@ class Canvas(tk.Canvas):
         self.start_game = self.bind("<Tab>", self.startGame)
         self.set_binds()
 
-        self.player = Player(Shape(800, 400, 824, 424, 'RECTANGLE'))
-        self.enemy = Enemy(Shape(50, 50, 74, 74, 'RECTANGLE'))
+        self.player = None
+        self.enemy = None
 
     # Get start x and y on Click
     def buttonOneClick(self, event):
-        if self.object == 'WALL':
+        if self.object == 'WALL' or (self.object == 'PLAYER' and self.player == None) or (self.object == 'ENEMY' and self.enemy == None):
             self.currRect = None
             self.currRect_start_x = event.x
             self.currRect_start_y = event.y
@@ -55,18 +55,25 @@ class Canvas(tk.Canvas):
     # Draw Rectangle as curser is moving
 
     def buttonOneMotion(self, event):
-        if self.object == 'WALL':
+        if self.object == 'WALL' or (self.object == 'PLAYER' and self.player == None) or (self.object == 'ENEMY' and self.enemy == None):
             if (self.currRect):
                 self.delete(self.currRect)
             self.currRect_end_x = event.x
             self.currRect_end_y = event.y
-            self.currRect = self.create_rectangle(self.currRect_start_x, self.currRect_start_y,
-                                                  self.currRect_end_x, self.currRect_end_y, width=1, fill="blue")
+            if self.object == 'WALL':
+                self.currRect = self.create_rectangle(self.currRect_start_x, self.currRect_start_y,
+                                                      self.currRect_end_x, self.currRect_end_y, width=1, fill="blue")
+            elif self.object == 'PLAYER':
+                self.currRect = self.create_rectangle(
+                    self.currRect_start_x, self.currRect_start_y, self.currRect_end_x, self.currRect_end_y, width=1, fill="green")
+            elif self.object == 'ENEMY':
+                self.currRect = self.create_rectangle(
+                    self.currRect_start_x, self.currRect_start_y, self.currRect_end_x, self.currRect_end_y, width=1, fill="red")
 
     # Draw final wall and save it on Release
 
     def buttonOneRelease(self, event):
-        if self.object == 'WALL':
+        if self.object == 'WALL' or (self.object == 'PLAYER' and self.player == None) or (self.object == 'ENEMY' and self.enemy == None):
             if (self.currRect):
                 self.delete(self.currRect)
 
@@ -76,14 +83,32 @@ class Canvas(tk.Canvas):
             self.currRect_end_y = min(self.currRect_end_y, self.height - 1)
 
             if (self.valid_wall()):
-                self.currRect = self.create_rectangle(self.currRect_start_x, self.currRect_start_y,
-                                                      self.currRect_end_x, self.currRect_end_y, width=1, fill="blue")
-                self.walls.append(Shape(self.currRect_start_x, self.currRect_start_y,
-                                        self.currRect_end_x, self.currRect_end_y, 'RECTANGLE', self.currRect))
+                if self.object == 'WALL':
+                    self.currRect = self.create_rectangle(self.currRect_start_x, self.currRect_start_y,
+                                                          self.currRect_end_x, self.currRect_end_y, width=1, fill="blue")
+                    self.walls.append(Shape(self.currRect_start_x, self.currRect_start_y,
+                                            self.currRect_end_x, self.currRect_end_y, 'RECTANGLE', self.currRect))
+                    for j in range(self.walls[-1].x1, self.walls[-1].x2 + 1):
+                        for i in range(self.walls[-1].y1, self.walls[-1].y2 + 1):
+                            self.pixels[i][j].is_movable_to = False
 
-                for j in range(self.walls[-1].x1, self.walls[-1].x2 + 1):
-                    for i in range(self.walls[-1].y1, self.walls[-1].y2 + 1):
-                        self.pixels[i][j].is_movable_to = False
+                if self.object == 'PLAYER':
+                    self.currRect = self.create_rectangle(
+                        self.currRect_start_x, self.currRect_start_y, self.currRect_end_x, self.currRect_end_y, width=1, fill="green")
+                    self.player = Player(Shape(self.currRect_start_x, self.currRect_start_y,
+                                               self.currRect_end_x, self.currRect_end_y, 'RECTANGLE', self.currRect))
+                    for j in range(self.player.shape.x1, self.player.shape.x2 + 1):
+                        for i in range(self.player.shape.y1, self.player.shape.y2 + 1):
+                            self.pixels[i][j].is_movable_to = False
+
+                if self.object == 'ENEMY':
+                    self.currRect = self.create_rectangle(
+                        self.currRect_start_x, self.currRect_start_y, self.currRect_end_x, self.currRect_end_y, width=1, fill="red")
+                    self.enemy = Player(Shape(self.currRect_start_x, self.currRect_start_y,
+                                              self.currRect_end_x, self.currRect_end_y, 'RECTANGLE', self.currRect))
+                    for j in range(self.enemy.shape.x1, self.enemy.shape.x2 + 1):
+                        for i in range(self.enemy.shape.y1, self.enemy.shape.y2 + 1):
+                            self.pixels[i][j].is_movable_to = False
 
         if self.object == 'WAYPOINT':
             x = max(event.x, 0)
@@ -120,25 +145,30 @@ class Canvas(tk.Canvas):
             y_points = [n for n in range(
                 self.currRect_start_y, self.currRect_end_y)]
 
-        playerShape = self.player.shape
-        player_x1 = playerShape.x1
-        player_x2 = playerShape.x2
-        player_y1 = playerShape.y1
-        player_y2 = playerShape.y2
+        if self.player != None:
+            playerShape = self.player.shape
+            player_x1 = playerShape.x1
+            player_x2 = playerShape.x2
+            player_y1 = playerShape.y1
+            player_y2 = playerShape.y2
 
-        enemyShape = self.enemy.shape
-        enemy_x1 = enemyShape.x1
-        enemy_x2 = enemyShape.x2
-        enemy_y1 = enemyShape.y1
-        enemy_y2 = enemyShape.y2
+            for x in x_points:
+                for y in y_points:
+                    if x >= player_x1 and x <= player_x2 and y >= player_y1 and y <= player_y2:
+                        return False
 
-        # Check if wall is in player or enemy
-        for x in x_points:
-            for y in y_points:
-                if x >= player_x1 and x <= player_x2 and y >= player_y1 and y <= player_y2:
-                    return False
-                elif x >= enemy_x1 and x <= enemy_x2 and y >= enemy_y1 and y <= enemy_y2:
-                    return False
+        if self.enemy != None:
+            enemyShape = self.enemy.shape
+            enemy_x1 = enemyShape.x1
+            enemy_x2 = enemyShape.x2
+            enemy_y1 = enemyShape.y1
+            enemy_y2 = enemyShape.y2
+
+            # Check if wall is in player or enemy
+            for x in x_points:
+                for y in y_points:
+                    if x >= enemy_x1 and x <= enemy_x2 and y >= enemy_y1 and y <= enemy_y2:
+                        return False
 
         # Check if wall is in a different wall
         for x in x_points:
@@ -153,9 +183,14 @@ class Canvas(tk.Canvas):
                 for waypoint in self.waypoints:
                     if x >= waypoint.x1 and x <= waypoint.x2 and y >= waypoint.y1 and y <= waypoint.y2:
                         return False
+
+        if self.currRect in self.walls:
+            return False
         return True
 
     def valid_waypoint(self, waypoint):
+        if waypoint in self.waypoints:
+            return False
         return self.pixels[waypoint.y1][waypoint.x1].is_movable_to
 
     # Remove last Drawn Wall
@@ -175,6 +210,16 @@ class Canvas(tk.Canvas):
                 self.pixels[waypoint.y1][waypoint.x1].is_movable_to = True
                 self.delete(self.waypoints[-1].canvas_id)
                 del self.waypoints[-1]
+
+        if self.object == 'PLAYER':
+            if self.player != None:
+                self.delete(self.player.shape.canvas_id)
+                self.player = None
+
+        if self.object == 'ENEMY':
+            if self.enemy != None:
+                self.delete(self.enemy.shape.canvas_id)
+                self.enemy = None
 
     # Removes all Walls
     def clearAll(self, event):
@@ -245,6 +290,7 @@ class Canvas(tk.Canvas):
                              solution[i+1].x, solution[i+1].y)
 
     def load_level(self, lines):
+        self.delete(tk.ALL)
         # Make Player
         player_line = lines[0].strip()
         fields = re.split('\s', player_line)
@@ -279,6 +325,7 @@ class Canvas(tk.Canvas):
 
         self.drawPlayers()
         self.draw_walls()
+        self.set_editable()
 
     def draw_walls(self):
         for wall in self.walls:
@@ -290,13 +337,27 @@ class Canvas(tk.Canvas):
                 for i in range(wall.y1, wall.y2 + 1):
                     self.pixels[i][j].is_movable_to = False
 
+    def draw_waypoints(self):
+        for waypoint in self.waypoints:
+            draw_waypoint = self.create_rectangle(
+                waypoint.x1, waypoint.y1, waypoint.x2, waypoint.y2, width=1, fill="yellow")
+            waypoint.canvas_id = draw_waypoint
+
+            self.pixels[waypoint.y1][waypoint.x1].is_movable_to = False
+
+    def hide_waypoints(self):
+        for waypoint in self.waypoints:
+            self.delete(waypoint.canvas_id)
+
     def set_editable(self):
         self.editable = not self.editable
 
         if self.editable:
             self.set_binds()
+            self.draw_waypoints()
         else:
             self.set_unbinds()
+            self.hide_waypoints()
 
     def set_binds(self):
         # Left Click for making Objects
