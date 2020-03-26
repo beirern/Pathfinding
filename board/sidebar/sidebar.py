@@ -27,15 +27,23 @@ class Sidebar(tk.Frame):
         self.save_button = tk.Button(self, text='Save', fg='blue')
         self.save_button.grid(row=4)
 
+        # Save File Name
+        self.save_entry = tk.Entry(self)
+        self.save_entry.grid(row=5)
+
         # Load Button
         self.load_button = tk.Button(self, text='Load', fg='blue')
-        self.load_button.grid(row=5)
+        self.load_button.grid(row=6)
+
+        # Load File Name
+        self.load_entry = tk.Entry(self)
+        self.load_entry.grid(row=7)
 
         # Editable Option
         self.v1 = tk.IntVar()
         self.v1.set(1)
         self.editable = tk.Checkbutton(self, text='Editable', variable=self.v1)
-        self.editable.grid(row=6)
+        self.editable.grid(row=8)
 
         self.width = width
         self.height = height
