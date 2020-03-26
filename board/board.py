@@ -20,6 +20,7 @@ class Board(tk.Frame):
         self.sidebar.pack(side=tk.LEFT)
 
         self.sidebar.save_button.bind('<Button-1>', self.saveLevel)
+        self.sidebar.load_button.bind('<Button-1>', self.loadLevel)
         self.sidebar.wall.bind('<Button-1>', self.set_wall)
         self.sidebar.waypoint.bind('<Button-1>', self.set_waypoint)
 
@@ -43,6 +44,14 @@ class Board(tk.Frame):
         file.write('Waypoints:' + '\n')
         for waypoint in waypoints:
             file.write(str(waypoint))
+
+        file.close()
+
+    def loadLevel(self, event):
+        file = open('Level1.txt', 'r')
+        lines = file.readlines()
+
+        self.canvas.load_level(lines)
 
     def set_wall(self, event):
         self.canvas.object = 'WALL'
