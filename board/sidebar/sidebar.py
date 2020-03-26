@@ -11,15 +11,19 @@ class Sidebar(tk.Frame):
         self.v.set(1)
 
         self.wall = tk.Radiobutton(
-            self, text="Walls", variable=self.v, value=1)
+            self, text='Walls', variable=self.v, value=1)
         self.wall.grid(row=0)
         self.waypoint = tk.Radiobutton(
-            self, text="Waypoints", variable=self.v, value=2)
+            self, text='Waypoints', variable=self.v, value=2)
         self.waypoint.grid(row=1)
 
         # Save Button
-        self.save_button = tk.Button(self, text="Save", fg="blue")
+        self.save_button = tk.Button(self, text='Save', fg='blue')
         self.save_button.grid(row=2)
+
+        # Load Button
+        self.load_button = tk.Button(self, text='Load', fg='blue')
+        self.load_button.grid(row=3)
 
         self.width = width
         self.height = height
