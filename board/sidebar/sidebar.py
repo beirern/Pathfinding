@@ -25,5 +25,11 @@ class Sidebar(tk.Frame):
         self.load_button = tk.Button(self, text='Load', fg='blue')
         self.load_button.grid(row=3)
 
+        # Editable Option
+        self.v1 = tk.IntVar()
+        self.v1.set(1)
+        self.editable = tk.Checkbutton(self, text='Editable', variable=self.v1)
+        self.editable.grid(row=4)
+
         self.width = width
         self.height = height
