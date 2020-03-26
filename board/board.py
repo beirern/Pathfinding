@@ -30,36 +30,44 @@ class Board(tk.Frame):
         self.pack()
 
     def saveLevel(self, event):
-        file = open('Level1.txt', 'w')
-        enemy = self.canvas.enemy
-        player = self.canvas.player
-        walls = self.canvas.walls
-        waypoints = self.canvas.waypoints
-        file.write(str(player) + '\n')
+        filename = self.sidebar.save_entry.get()
+        if len(filename) > 0:
+            file = open(filename, 'w')
+            enemy = self.canvas.enemy
+            player = self.canvas.player
+            walls = self.canvas.walls
+            waypoints = self.canvas.waypoints
+            file.write(str(player) + '\n')
 
-        file = open('Level1.txt', 'a')
-        file.write(str(enemy) + '\n')
+            file = open(filename, 'a')
+            file.write(str(enemy) + '\n')
 
-        file.write('Walls:')
-        for wall in walls:
-            file.write('\n' + str(wall))
+            file.write('Walls:')
+            for wall in walls:
+                file.write('\n' + str(wall))
 
-        file.write('\n' + 'Waypoints:')
-        for waypoint in waypoints:
-            file.write('\n' + str(waypoint))
+            file.write('\n' + 'Waypoints:')
+            for waypoint in waypoints:
+                file.write('\n' + str(waypoint))
 
-        file.close()
+            file.close()
 
     def loadLevel(self, event):
-        file = open('Level1.txt', 'r')
-        lines = file.readlines()
+        filename = self.sidebar.load_entry.get()
+        try:
+            file = open(filename, 'r')
+            lines = file.readlines()
 
-        if self.sidebar.v1.get() == 0:
-            self.sidebar.v1.set(1)
-        elif self.sidebar.v1.get() == 1:
-            self.sidebar.v1.set(0)
+            if self.sidebar.v1.get() == 0:
+                self.sidebar.v1.set(1)
+            elif self.sidebar.v1.get() == 1:
+                self.sidebar.v1.set(0)
 
-        self.canvas.load_level(lines)
+            self.canvas.load_level(lines)
+        except FileNotFoundError:
+            print("File not found")
+        finally:
+            file.close()
 
     def set_wall(self, event):
         self.canvas.object = 'WALL'
