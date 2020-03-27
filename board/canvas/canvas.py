@@ -28,7 +28,7 @@ class Canvas(tk.Canvas):
         self.height = height
 
         self.walls = []
-        self.waypoints = []
+        self.waypoints = {}
 
         # Set up array of Pixels
         self.pixels = []
@@ -151,8 +151,7 @@ class Canvas(tk.Canvas):
             if self.valid_waypoint(Shape(x, y, x, y, 'RECTANGLE')):
                 waypoint = self.create_rectangle(
                     x, y, x, y, fill="yellow")
-                self.waypoints.append(
-                    Shape(x, y, x, y, 'RECTANGLE', waypoint))
+                self.waypoints[Shape(x, y, x, y, 'RECTANGLE', waypoint)] = []
 
                 self.pixels[y][x].is_movable_to = False
 
@@ -187,8 +186,10 @@ class Canvas(tk.Canvas):
                 self.currRect_end_y = end_pixel.y
 
                 if self.valid_line():
-                    self.create_line(self.currRect_start_x, self.currRect_start_y,
-                                     self.currRect_end_x, self.currRect_end_y, fill="black")
+                    arrow = self.create_line(self.currRect_start_x, self.currRect_start_y,
+                                             self.currRect_end_x, self.currRect_end_y, fill="black")
+                    self.waypoints[Shape(self.currRect_start_x, self.currRect_start_y,
+                                         self.currRect_start_x, self.currRect_start_y, 'RECTANGLE', -1)].append(Shape(self.currRect_end_x, self.currRect_end_y, self.currRect_end_x, self.currRect_end_y, 'RECTANGLE', arrow))
 
     def valid_line(self):
         # Vertical Line/Division by 0
@@ -335,10 +336,9 @@ class Canvas(tk.Canvas):
 
         if self.object == 'WAYPOINT':
             if (len(self.waypoints) > 0):
-                waypoint = self.waypoints[-1]
+                waypoint = self.waypoints.popitem()[0]
                 self.pixels[waypoint.y1][waypoint.x1].is_movable_to = True
-                self.delete(self.waypoints[-1].canvas_id)
-                del self.waypoints[-1]
+                self.delete(waypoint.canvas_id)
 
         if self.object == 'PLAYER':
             if self.player != None:
@@ -366,7 +366,7 @@ class Canvas(tk.Canvas):
                 for waypoint in self.waypoints:
                     self.pixels[waypoint.y1][waypoint.x1].is_movable_to = True
                     self.delete(waypoint.canvas_id)
-                self.waypoints = []
+                self.waypoints = {}
 
     # Draws enemy square and player square
     def drawPlayers(self):
@@ -436,21 +436,47 @@ class Canvas(tk.Canvas):
 
         # Fill Walls and Waypoints Array
         self.walls = []
-        self.waypoints = []
+        self.waypoints = {}
         lines = lines[3:]
-        walls = True
+        object = 'WALL'
         for line in lines:
             line = line.strip()
             if line == 'Waypoints:':
-                walls = False
+                object = 'WAYPOINT'
+            elif line == 'Arrows:':
+                object = 'ARROW'
             else:
                 fields = re.split('\s', line)
-                if walls:
+                if object == 'WALL':
                     self.walls.append(Shape(int(fields[0]), int(
                         fields[1]), int(fields[2]), int(fields[3]), fields[4]))
-                else:
-                    self.waypoints.append(Shape(int(fields[0]), int(
-                        fields[1]), int(fields[2]), int(fields[3]), fields[4]))
+                elif object == 'WAYPOINT':
+                    curr_waypoint = Shape(int(fields[0]), int(
+                        fields[1]), int(fields[2]), int(fields[3]), fields[4])
+                    self.waypoints[curr_waypoint] = []
+
+                elif object == 'ARROW':
+                    curr_waypoint = Shape(int(fields[0]), int(
+                        fields[1]), int(fields[2]), int(fields[3]), fields[4])
+                    field0 = None
+                    field1 = None
+                    field2 = None
+                    field3 = None
+                    field4 = None
+                    for index in range(6, len(fields)):
+                        if index % 6 == 0:
+                            field0 = int(fields[index])
+                        if index % 6 == 1:
+                            field1 = int(fields[index])
+                        if index % 6 == 2:
+                            field2 = int(fields[index])
+                        if index % 6 == 3:
+                            field3 = int(fields[index])
+                        if index % 6 == 4:
+                            field4 = fields[index]
+                        if index % 6 == 5:
+                            self.waypoints[curr_waypoint].append(
+                                Shape(field0, field1, field2, field3, field4))
 
         self.drawPlayers()
         self.draw_walls()
@@ -472,11 +498,18 @@ class Canvas(tk.Canvas):
                 waypoint.x1, waypoint.y1, waypoint.x2, waypoint.y2, width=1, fill="yellow")
             waypoint.canvas_id = draw_waypoint
 
+            for end_shape in self.waypoints[waypoint]:
+                arrow = self.create_line(
+                    waypoint.x1, waypoint.y1, end_shape.x2, end_shape.y2, fill="black")
+                end_shape.canvas_id = arrow
+
             self.pixels[waypoint.y1][waypoint.x1].is_movable_to = False
 
     def hide_waypoints(self):
         for waypoint in self.waypoints:
             self.delete(waypoint.canvas_id)
+            for arrow in self.waypoints[waypoint]:
+                self.delete(arrow.canvas_id)
 
     def set_editable(self):
         self.editable = not self.editable
