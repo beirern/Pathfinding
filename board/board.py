@@ -57,18 +57,19 @@ class Board(tk.Frame):
         filename = self.sidebar.load_entry.get()
         try:
             file = open(filename, 'r')
-            lines = file.readlines()
+            try:
+                lines = file.readlines()
 
-            if self.sidebar.v1.get() == 0:
-                self.sidebar.v1.set(1)
-            elif self.sidebar.v1.get() == 1:
-                self.sidebar.v1.set(0)
+                if self.sidebar.v1.get() == 0:
+                    self.sidebar.v1.set(1)
+                elif self.sidebar.v1.get() == 1:
+                    self.sidebar.v1.set(0)
 
-            self.canvas.load_level(lines)
+                self.canvas.load_level(lines)
+            finally:
+                file.close()
         except FileNotFoundError:
             print("File not found")
-        finally:
-            file.close()
 
     def set_wall(self, event):
         self.canvas.object = 'WALL'
