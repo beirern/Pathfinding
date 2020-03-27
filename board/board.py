@@ -51,6 +51,12 @@ class Board(tk.Frame):
             for waypoint in waypoints:
                 file.write('\n' + str(waypoint))
 
+            file.write('\n' + 'Arrows:')
+            for waypoint in waypoints:
+                file.write('\n' + str(waypoint))
+                for end_point in waypoints[waypoint]:
+                    file.write(' ' + str(end_point))
+
             file.close()
 
     def loadLevel(self, event):
