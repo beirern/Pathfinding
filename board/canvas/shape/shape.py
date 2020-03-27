@@ -15,6 +15,9 @@ class Shape:
     def __repr__(self):
         return str(self)
 
+    def __hash__(self):
+        return self.x1 + self.x2 ** 2 + self.y1 ** 3 + self.y2 ** 4
+
     def __eq__(self, value):
         if isinstance(value, Shape):
             return (self.x1 == value.x1 and self.x2 == value.x2 and self.y1 == self.y1 and self.y2 == self.y2)
