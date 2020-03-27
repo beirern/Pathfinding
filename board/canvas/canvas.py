@@ -1,6 +1,7 @@
 import tkinter as tk
 import re
 import numpy as np
+import math
 from .enemy import Enemy
 from .player import Player
 from .shape import Shape
@@ -52,10 +53,37 @@ class Canvas(tk.Canvas):
             self.currRect_start_x = event.x
             self.currRect_start_y = event.y
 
+        if self.object == 'ARROW':
+            # Make start arrow snap to near pixel
+            self.currRect = None
+            start_pixel = None
+            smallest_distance = -1
+            self.currRect_start_x = None
+            self.currRect_start_y = None
+
+            lower_loop_y = max(event.y - 10, 0)
+            upper_loop_y = min(event.y + 11, self.height)
+            lower_loop_x = max(event.x - 10, 0)
+            upper_loop_x = min(event.x + 11, self.width)
+            for y in range(lower_loop_y, upper_loop_y):
+                for x in range(lower_loop_x, upper_loop_x):
+                    for waypoint in self.waypoints:
+                        if waypoint.x1 == self.pixels[y][x].x and waypoint.y1 == self.pixels[y][x].y:
+                            if math.sqrt(math.pow(x - event.x, 2) + math.pow(y - event.y, 2)) < smallest_distance or smallest_distance == -1:
+                                start_pixel = self.pixels[y][x]
+                                smallest_distance = math.sqrt(math.pow(
+                                    x - event.x, 2) + math.pow(y - event.y, 2))
+
+            # Checks if start pixel was found
+            # For whatever reason start_pixel != None does not work
+            if not start_pixel == None:
+                self.currRect_start_x = start_pixel.x
+                self.currRect_start_y = start_pixel.y
+
     # Draw Rectangle as curser is moving
 
     def buttonOneMotion(self, event):
-        if self.object == 'WALL' or (self.object == 'PLAYER' and self.player == None) or (self.object == 'ENEMY' and self.enemy == None):
+        if self.object == 'WALL' or (self.object == 'PLAYER' and self.player == None) or (self.object == 'ENEMY' and self.enemy == None) or self.object == 'ARROW':
             if (self.currRect):
                 self.delete(self.currRect)
             self.currRect_end_x = event.x
@@ -69,6 +97,10 @@ class Canvas(tk.Canvas):
             elif self.object == 'ENEMY':
                 self.currRect = self.create_rectangle(
                     self.currRect_start_x, self.currRect_start_y, self.currRect_end_x, self.currRect_end_y, width=1, fill="red")
+            elif self.object == 'ARROW':
+                if self.currRect_start_x and self.currRect_start_y:
+                    self.currRect = self.create_line(
+                        self.currRect_start_x, self.currRect_start_y, self.currRect_end_x, self.currRect_end_y, fill="black")
 
     # Draw final wall and save it on Release
 
@@ -124,7 +156,104 @@ class Canvas(tk.Canvas):
 
                 self.pixels[y][x].is_movable_to = False
 
+        if self.object == 'ARROW':
+            if self.currRect:
+                self.delete(self.currRect)
+            x = max(event.x, 0)
+            x = min(x, self.width - 1)
+            y = max(event.y, 0)
+            y = min(y, self.height - 1)
+
+            smallest_distance = -1
+            end_pixel = None
+
+            lower_loop_y = max(y - 10, 0)
+            upper_loop_y = min(y + 11, self.height)
+            lower_loop_x = max(x - 10, 0)
+            upper_loop_x = min(x + 11, self.width)
+            for loop_y in range(lower_loop_y, upper_loop_y):
+                for loop_x in range(lower_loop_x, upper_loop_x):
+                    for waypoint in self.waypoints:
+                        if waypoint.x1 == self.pixels[loop_y][loop_x].x and waypoint.y1 == self.pixels[loop_y][loop_x].y:
+                            if math.sqrt(math.pow(loop_x - x, 2) + math.pow(loop_y - y, 2)) < smallest_distance or smallest_distance == -1:
+                                end_pixel = self.pixels[loop_y][loop_x]
+                                smallest_distance = math.sqrt(math.pow(
+                                    loop_x - x, 2) + math.pow(loop_y - y, 2))
+
+            # Checks if start pixel was found
+            # For whatever reason start_pixel != None does not work
+            if not end_pixel == None and (end_pixel.x != self.currRect_start_x or end_pixel.y != self.currRect_start_y):
+                self.currRect_end_x = end_pixel.x
+                self.currRect_end_y = end_pixel.y
+
+                if self.valid_line():
+                    self.create_line(self.currRect_start_x, self.currRect_start_y,
+                                     self.currRect_end_x, self.currRect_end_y, fill="black")
+
+    def valid_line(self):
+        # Vertical Line/Division by 0
+        if self.currRect_start_x == self.currRect_end_x:
+            slope = 0
+            y_intercept = 0
+        else:
+            slope = (self.currRect_start_y - self.currRect_end_y) / \
+                (self.currRect_start_x - self.currRect_end_x)
+            y_intercept = self.currRect_start_y - slope * self.currRect_start_x
+
+        for wall in self.walls:
+            if slope == 0 and y_intercept == 0:
+                # Check Top of Wall
+                if wall.y1 >= min(self.currRect_start_y, self.currRect_end_y) and wall.y1 <= max(self.currRect_start_y, self.currRect_end_y):
+                    x = self.currRect_start_x
+                    if x == wall.x1 or x == wall.x2:
+                        return False
+                    if x > wall.x1 and x < wall.x2:
+                        return False
+
+                # Check Bottom of Wall
+                if wall.y2 >= min(self.currRect_start_y, self.currRect_end_y) and wall.y2 <= max(self.currRect_start_y, self.currRect_end_y):
+                    x = self.currRect_start_x
+                    if x == wall.x1 or x == wall.x2:
+                        return False
+                    if x > wall.x1 and x < wall.x2:
+                        return False
+            else:
+                # Check Left Side of Wall
+                if wall.x1 >= min(self.currRect_start_x, self.currRect_end_x) and wall.x1 <= max(self.currRect_start_x, self.currRect_end_x):
+                    y = slope * wall.x1 + y_intercept
+                    if y == wall.y1 or y == wall.y2:
+                        return False
+                    if y > wall.y1 and y < wall.y2:
+                        return False
+
+                # Check Right Side of Wall
+                if wall.x2 >= min(self.currRect_start_x, self.currRect_end_x) and wall.x2 <= max(self.currRect_start_x, self.currRect_end_x):
+                    y = slope * wall.x2 + y_intercept
+                    if y == wall.y1 or y == wall.y2:
+                        return False
+                    if y > wall.y1 and y < wall.y2:
+                        return False
+
+                # Check Top of Wall
+                if wall.y1 >= min(self.currRect_start_y, self.currRect_end_y) and wall.y1 <= max(self.currRect_start_y, self.currRect_end_y):
+                    x = (wall.y1 - y_intercept) / slope
+                    if x == wall.x1 or x == wall.x2:
+                        return False
+                    if x > wall.x1 and x < wall.x2:
+                        return False
+
+                # Check Bottom of Wall
+                if wall.y2 >= min(self.currRect_start_y, self.currRect_end_y) and wall.y2 <= max(self.currRect_start_y, self.currRect_end_y):
+                    x = (wall.y2 - y_intercept) / slope
+                    if x == wall.x1 or x == wall.x2:
+                        return False
+                    if x > wall.x1 and x < wall.x2:
+                        return False
+
+        return True
+
     # Helper Method to check if a wall will cover up a player
+
     def valid_wall(self):
         # Get X Points
         if (self.currRect_start_x == self.currRect_end_x):
