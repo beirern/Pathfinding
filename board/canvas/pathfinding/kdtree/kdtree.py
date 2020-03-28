@@ -2,40 +2,40 @@ from .node import Node
 
 
 class KDTree:
-    def __init__(self, pixels):
+    def __init__(self, pixels, waypoints):
         self.pixels = pixels
+        self.waypoints = waypoints
         self.smallest_distance = -1
         self.closest = None
 
         self.root = Node(None)
 
-        for i in range(len(pixels)):
-            for j in range(len(pixels[0])):
-                self.add(pixels[i][j])
+        for waypoint in waypoints:
+            self.add(waypoint)
 
-    def add(self, pixel, node=None, level=None):
+    def add(self, waypoint, node=None, level=None):
         if node == None and level == None:
             if self.root.pixel == None:
-                self.root = Node(pixel)
+                self.root = Node(self.pixels[waypoint.y1][waypoint.x1])
             else:
-                if pixel.x <= self.root.pixel.x:
-                    self.root.left = self.add(pixel, self.root.left, 1)
+                if waypoint.x1 <= self.root.pixel.x:
+                    self.root.left = self.add(waypoint, self.root.left, 1)
                 else:
-                    self.root.right = self.add(pixel, self.root.right, 1)
+                    self.root.right = self.add(waypoint, self.root.right, 1)
         else:
             if node == None:
-                node = Node(pixel)
+                node = Node(self.pixels[waypoint.y1][waypoint.x1])
             else:
                 if level % 2 == 0:
-                    if pixel.x <= node.pixel.x:
-                        node.left = self.add(pixel, node.left, level + 1)
+                    if waypoint.x1 <= node.pixel.x:
+                        node.left = self.add(waypoint, node.left, level + 1)
                     else:
-                        node.right = self.add(pixel, node.right, level + 1)
+                        node.right = self.add(waypoint, node.right, level + 1)
                 else:
-                    if pixel.y <= node.pixel.y:
-                        node.left = self.add(pixel, node.left, level + 1)
+                    if waypoint.y1 <= node.pixel.y:
+                        node.left = self.add(waypoint, node.left, level + 1)
                     else:
-                        node.right = self.add(pixel, node.right, level + 1)
+                        node.right = self.add(waypoint, node.right, level + 1)
             return node
 
     def nearest(self, target, node=None, level=None):
