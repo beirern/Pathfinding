@@ -470,7 +470,7 @@ class Canvas(tk.Canvas):
 
     def startGame(self, event):
         if self.player != None and self.enemy != None:
-            kdtree = KDTree(self.pixels)
+            kdtree = KDTree(self.pixels, self.waypoints)
 
     def astar(self):
         graph = AstarGraph(self.pixels, self.enemy)
@@ -576,8 +576,6 @@ class Canvas(tk.Canvas):
                 arrow = self.create_line(
                     waypoint.x1, waypoint.y1, end_shape.x2, end_shape.y2, fill="black")
                 end_shape.canvas_id = arrow
-
-            self.pixels[waypoint.y1][waypoint.x1].is_movable_to = False
 
     def hide_waypoints(self):
         for waypoint in self.waypoints:
