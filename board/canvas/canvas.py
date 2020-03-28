@@ -429,8 +429,17 @@ class Canvas(tk.Canvas):
             if (len(self.waypoints) > 0):
                 for waypoint in self.waypoints:
                     self.pixels[waypoint.y1][waypoint.x1].is_movable_to = True
+                    for end_point in self.waypoints[waypoint]:
+                        self.delete(end_point.canvas_id)
                     self.delete(waypoint.canvas_id)
                 self.waypoints = {}
+
+        if self.object == 'ARROW':
+            if (len(self.waypoints) > 0):
+                for waypoint in self.waypoints:
+                    for end_point in self.waypoints[waypoint]:
+                        self.delete(end_point.canvas_id)
+                    self.waypoints[waypoint] = []
 
     # Draws enemy square and player square
     def drawPlayers(self):
@@ -544,7 +553,8 @@ class Canvas(tk.Canvas):
 
         self.drawPlayers()
         self.draw_walls()
-        self.set_editable()
+        if self.editable == True:
+            self.set_editable()
 
     def draw_walls(self):
         for wall in self.walls:
@@ -600,14 +610,15 @@ class Canvas(tk.Canvas):
         self.unbind("<Tab>", self.start_game)
 
     def set_unbinds(self):
-        # Unbind Left Click
-        self.unbind("<Button-1>", self.left_click)
-        self.unbind("<B1-Motion>", self.left_motion)
-        self.unbind("<ButtonRelease-1>", self.left_release)
+        if self.left_click != None:
+            # Unbind Left Click
+            self.unbind("<Button-1>", self.left_click)
+            self.unbind("<B1-Motion>", self.left_motion)
+            self.unbind("<ButtonRelease-1>", self.left_release)
 
-        # Unbind Right Click
-        self.unbind("<Button-3>", self.right_click)
-        self.unbind("<Double-Button-3>", self.right_double_click)
+            # Unbind Right Click
+            self.unbind("<Button-3>", self.right_click)
+            self.unbind("<Double-Button-3>", self.right_double_click)
 
         # Tab to Start Game (Works opposite of mouse binds)
         self.start_game = self.bind("<Tab>", self.startGame)
