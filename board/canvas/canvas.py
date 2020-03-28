@@ -348,33 +348,33 @@ class Canvas(tk.Canvas):
                         # Check Left Side of Wall
                         if wall.x1 >= min(waypoint.x1, arrow.x2) and wall.x1 <= max(waypoint.x1, arrow.x2):
                             y = slope * wall.x1 + y_intercept
-                            if y == waypoint.y1 or y == arrow.y2:
+                            if y == wall.y1 or y == wall.y2:
                                 return False
-                            if y > min(waypoint.y1, arrow.y2) and x < max(waypoint.y1, arrow.y2):
+                            if y > wall.y1 and y < wall.y2:
                                 return False
 
                         # Check Right Side of Wall
                         if wall.x2 >= min(waypoint.x1, arrow.x2) and wall.x2 <= max(waypoint.x1, arrow.x2):
                             y = slope * wall.x2 + y_intercept
-                            if y == waypoint.y1 or y == arrow.y2:
+                            if y == wall.y1 or y == wall.y2:
                                 return False
-                            if y > min(waypoint.y1, arrow.y2) and x < max(waypoint.y1, arrow.y2):
+                            if y > wall.y1 and y < wall.y2:
                                 return False
 
                         # Check Top of Wall
                         if wall.y1 >= min(waypoint.y1, arrow.y2) and wall.y1 <= max(waypoint.y1, arrow.y2):
                             x = (wall.y1 - y_intercept) / slope
-                            if x == waypoint.x1 or x == arrow.x2:
+                            if x == wall.x1 or x == wall.x2:
                                 return False
-                            if x > min(waypoint.x1, arrow.x2) and x < max(waypoint.x1, arrow.x2):
+                            if x > wall.x1 and x < wall.x2:
                                 return False
 
                         # Check Bottom of Wall
                         if wall.y2 >= min(waypoint.y1, arrow.y2) and wall.y2 <= max(waypoint.y1, arrow.y2):
                             x = (wall.y2 - y_intercept) / slope
-                            if x == waypoint.x1 or x == arrow.x2:
+                            if x == wall.x1 or x == wall.x2:
                                 return False
-                            if x > min(waypoint.x1, arrow.x2) and x < max(waypoint.x1, arrow.x2):
+                            if x > wall.x1 and x < wall.x2:
                                 return False
 
         if self.currRect in self.walls:
