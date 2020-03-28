@@ -66,10 +66,7 @@ class Board(tk.Frame):
             try:
                 lines = file.readlines()
 
-                if self.sidebar.v1.get() == 0:
-                    self.sidebar.v1.set(1)
-                elif self.sidebar.v1.get() == 1:
-                    self.sidebar.v1.set(0)
+                self.sidebar.v1.set(0)
 
                 self.canvas.load_level(lines)
             finally:
