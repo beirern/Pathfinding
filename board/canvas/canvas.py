@@ -314,8 +314,72 @@ class Canvas(tk.Canvas):
                     if x >= waypoint.x1 and x <= waypoint.x2 and y >= waypoint.y1 and y <= waypoint.y2:
                         return False
 
+        if self.object == 'WALL':
+            # Check if wall is in an arrow
+            wall = Shape(self.currRect_start_x, self.currRect_start_y,
+                         self.currRect_end_x, self.currRect_end_y, 'RECTANGLE')
+            for waypoint in self.waypoints:
+                for arrow in self.waypoints[waypoint]:
+                    if waypoint.x1 == arrow.x2:
+                        slope = 0
+                        y_intercept = 0
+                    else:
+                        slope = (waypoint.y1 - arrow.y2) / \
+                            (waypoint.x1 - arrow.x2)
+                        y_intercept = waypoint.y1 - slope * waypoint.x1
+
+                    if slope == 0 and y_intercept == 0:
+                        # Check Top of Wall
+                        if wall.y1 >= min(waypoint.y1, arrow.y2) and wall.y1 <= max(waypoint.y1, arrow.y2):
+                            x = waypoint.x1
+                            if x == wall.x1 or x == wall.x2:
+                                return False
+                            if x > wall.x1 and x < wall.x2:
+                                return False
+
+                        # Check Bottom of Wall
+                        if wall.y2 >= min(waypoint.y1, arrow.y2) and wall.y2 <= max(waypoint.y1, arrow.y2):
+                            x = waypoint.x1
+                            if x == wall.x1 or x == wall.x2:
+                                return False
+                            if x > wall.x1 and x < wall.x2:
+                                return False
+                    else:
+                        # Check Left Side of Wall
+                        if wall.x1 >= min(waypoint.x1, arrow.x2) and wall.x1 <= max(waypoint.x1, arrow.x2):
+                            y = slope * wall.x1 + y_intercept
+                            if y == waypoint.y1 or y == arrow.y2:
+                                return False
+                            if y > min(waypoint.y1, arrow.y2) and x < max(waypoint.y1, arrow.y2):
+                                return False
+
+                        # Check Right Side of Wall
+                        if wall.x2 >= min(waypoint.x1, arrow.x2) and wall.x2 <= max(waypoint.x1, arrow.x2):
+                            y = slope * wall.x2 + y_intercept
+                            if y == waypoint.y1 or y == arrow.y2:
+                                return False
+                            if y > min(waypoint.y1, arrow.y2) and x < max(waypoint.y1, arrow.y2):
+                                return False
+
+                        # Check Top of Wall
+                        if wall.y1 >= min(waypoint.y1, arrow.y2) and wall.y1 <= max(waypoint.y1, arrow.y2):
+                            x = (wall.y1 - y_intercept) / slope
+                            if x == waypoint.x1 or x == arrow.x2:
+                                return False
+                            if x > min(waypoint.x1, arrow.x2) and x < max(waypoint.x1, arrow.x2):
+                                return False
+
+                        # Check Bottom of Wall
+                        if wall.y2 >= min(waypoint.y1, arrow.y2) and wall.y2 <= max(waypoint.y1, arrow.y2):
+                            x = (wall.y2 - y_intercept) / slope
+                            if x == waypoint.x1 or x == arrow.x2:
+                                return False
+                            if x > min(waypoint.x1, arrow.x2) and x < max(waypoint.x1, arrow.x2):
+                                return False
+
         if self.currRect in self.walls:
             return False
+
         return True
 
     def valid_waypoint(self, waypoint):
