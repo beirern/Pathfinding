@@ -471,12 +471,13 @@ class Canvas(tk.Canvas):
     def startGame(self, event):
         if self.player != None and self.enemy != None:
             kdtree = KDTree(self.pixels, self.waypoints)
+            self.astar(kdtree.nearest(self.pixels[self.player.shape.y1 + self.player.shape.height][self.player.shape.x1 + self.player.shape.width]),
+                       kdtree.nearest(self.pixels[self.enemy.shape.y1 + self.enemy.shape.height][self.enemy.shape.x1 + self.enemy.shape.width]))
 
-    def astar(self):
-        graph = AstarGraph(self.pixels, self.enemy)
+    def astar(self, start, end):
+        graph = AstarGraph(self.pixels, self.waypoints)
         pathfinder = PathfinderSolver(graph)
-        result = pathfinder.findShortestPath(
-            self.pixels[62][62], self.pixels[412][812])
+        result = pathfinder.findShortestPath(start, end)
 
         if result.outcome == "SOLVED":
             print("DONE")
@@ -487,9 +488,13 @@ class Canvas(tk.Canvas):
             print("Timed Out!")
 
     def print_path(self, solution):
+        self.create_line(self.player.shape.x1 + self.player.shape.width,
+                         self.player.shape.y1 + self.player.shape.height, solution[0].x, solution[0].y)
         for i in range(len(solution) - 1):
             self.create_line(solution[i].x, solution[i].y,
                              solution[i+1].x, solution[i+1].y)
+        self.create_line(solution[len(solution) - 1].x, solution[len(solution) - 1].y,
+                         self.enemy.shape.x1 + self.enemy.shape.width, self.enemy.shape.y1 + self.enemy.shape.height)
 
     def load_level(self, lines):
         self.delete(tk.ALL)
