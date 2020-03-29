@@ -19,11 +19,9 @@ class PathfinderSolver:
 
         # Timeout will be called after 10 minutes
         # Each minute
-        self.timeout_timer = threading.Timer(10 * 60.0, self.time_up)
-        self.update_timer = threading.Timer(60.0, self.minute_passed)
+        self.timeout_timer = threading.Timer(2.0, self.time_up)
 
         self.timeout_timer.start()
-        self.update_timer.start()
         print("Starting Search...")
 
         if start == end:
@@ -39,7 +37,6 @@ class PathfinderSolver:
         while len(self.queue) != 0:
             if self.timeout:
                 self.timeout_timer.cancel()
-                self.update_timer.cancel()
                 return PathfinderResult([], "TIMEOUT", 0)
             pixel = heapq.heappop(self.queue)[1]
             if pixel == end:
@@ -50,7 +47,6 @@ class PathfinderSolver:
                     temp = self.previous[temp]
                 solution.insert(0, start)
                 self.timeout_timer.cancel()
-                self.update_timer.cancel()
                 return PathfinderResult(solution, "SOLVED", solution_weight)
             for edge in self.graph.neighbors(pixel):
                 if edge.pixel_to in self.dist_to:
@@ -73,22 +69,10 @@ class PathfinderSolver:
                         (self.dist_to[edge.pixel_to] + self.graph.estimated_distance_to_goal(edge.pixel_to, end), edge.pixel_to))
             heapq.heapify(self.queue)
 
-        print("HAN")
         self.timeout_timer.cancel()
-        self.update_timer.cancel()
         return PathfinderResult([], "UNSOLVED", 0)
 
     # Timeout after 10 minutes
     def time_up(self):
         self.timeout_timer.cancel()
-        self.update_timer.cancel()
         self.timeout = True
-
-    # Print every minute
-    def minute_passed(self):
-        self.update_timer.cancel()
-        self.minutes = self.minutes + 1
-        print("Still Searching..." + " " +
-              str(self.minutes) + " minute(s) out of " + str(10))
-        self.update_timer = threading.Timer(60.0, self.minute_passed)
-        self.update_timer.start()
