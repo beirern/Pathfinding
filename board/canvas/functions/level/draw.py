@@ -44,10 +44,6 @@ def drawPlayers(self):
             playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, fill="green")
         self.player = Player(
             Shape(playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, 'RECTANGLE', canvas_id))
-        # Update Pixel Array
-        for j in range(playerShape.x1, playerShape.x2 + 1):
-            for i in range(playerShape.y1, playerShape.y2 + 1):
-                self.pixels[i][j].is_movable_to = False
 
     enemyShape = self.enemy.shape
     if enemyShape.shapeType == 'RECTANGLE':
@@ -56,7 +52,3 @@ def drawPlayers(self):
             enemyShape.x1, enemyShape.y1, enemyShape.x2, enemyShape.y2, fill="red")
         self.enemy = Enemy(
             Shape(enemyShape.x1, enemyShape.y1, enemyShape.x2, enemyShape.y2, 'RECTANGLE', canvas_id))
-        # Update Pixel Array
-        for j in range(enemyShape.x1, enemyShape.x2 + 1):
-            for i in range(enemyShape.y1, enemyShape.y2 + 1):
-                self.pixels[i][j].is_movable_to = False
