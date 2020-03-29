@@ -198,3 +198,11 @@ def valid_waypoint(self, waypoint):
     if waypoint in self.waypoints:
         return False
     return self.pixels[waypoint.y1][waypoint.x1].is_movable_to
+
+
+def valid__movable_area(self, x1, y1, x2, y2):
+    for x_point in range(x1, x2 + 1):
+        for y_point in range(y1, y2 + 1):
+            if (self.pixels[y_point][x_point].is_movable_to == False):
+                return False
+    return True
