@@ -131,44 +131,52 @@ class Canvas(tk.Canvas):
 
     # Move Up
     def move_up(self, event):
-        if valid__movable_area(self, self.player.shape.x1, self.player.shape.y1 - 10, self.player.shape.x2, self.player.shape.y1):
-            self.delete(self.player.shape.canvas_id)
-            player = self.player.shape
-            player.y1 = player.y1 - 10
-            player.y2 = player.y2 - 10
-            new_player = self.create_rectangle(
-                player.x1, player.y1, player.x2, player.y2, width=1, fill="green")
-            self.player.shape.canvas_id = new_player
+        self.delete(self.player.shape.canvas_id)
+        player = self.player.shape
+        move = valid__movable_area(
+            self, player.x1, player.y1, 'up', player)
+        if move != 0:
+            player.y1 = player.y1 - move
+            player.y2 = player.y2 - move
+        new_player = self.create_rectangle(
+            player.x1, player.y1, player.x2, player.y2, width=1, fill="green")
+        self.player.shape.canvas_id = new_player
 
     # Move Down
     def move_down(self, event):
-        if valid__movable_area(self, self.player.shape.x1, self.player.shape.y2, self.player.shape.x2, self.player.shape.y2 + 10):
-            self.delete(self.player.shape.canvas_id)
-            player = self.player.shape
-            player.y1 = player.y1 + 10
-            player.y2 = player.y2 + 10
-            new_player = self.create_rectangle(
-                player.x1, player.y1, player.x2, player.y2, width=1, fill="green")
-            self.player.shape.canvas_id = new_player
+        self.delete(self.player.shape.canvas_id)
+        player = self.player.shape
+        move = valid__movable_area(
+            self, player.x1, player.y2, 'down', player)
+        if move != 0:
+            player.y1 = player.y1 + move
+            player.y2 = player.y2 + move
+        new_player = self.create_rectangle(
+            player.x1, player.y1, player.x2, player.y2, width=1, fill="green")
+        self.player.shape.canvas_id = new_player
 
     # Move Left
     def move_left(self, event):
-        if valid__movable_area(self, self.player.shape.x1 - 10, self.player.shape.y1, self.player.shape.x1, self.player.shape.y2):
-            self.delete(self.player.shape.canvas_id)
-            player = self.player.shape
-            player.x1 = player.x1 - 10
-            player.x2 = player.x2 - 10
-            new_player = self.create_rectangle(
-                player.x1, player.y1, player.x2, player.y2, width=1, fill="green")
-            self.player.shape.canvas_id = new_player
+        self.delete(self.player.shape.canvas_id)
+        player = self.player.shape
+        move = valid__movable_area(
+            self, player.x1, player.y1, 'left', player)
+        if move != 0:
+            player.x1 = player.x1 - move
+            player.x2 = player.x2 - move
+        new_player = self.create_rectangle(
+            player.x1, player.y1, player.x2, player.y2, width=1, fill="green")
+        self.player.shape.canvas_id = new_player
 
     # Move Right
     def move_right(self, event):
-        if valid__movable_area(self, self.player.shape.x2, self.player.shape.y1, self.player.shape.x2 + 10, self.player.shape.y2):
-            self.delete(self.player.shape.canvas_id)
-            player = self.player.shape
-            player.x1 = player.x1 + 10
-            player.x2 = player.x2 + 10
-            new_player = self.create_rectangle(
-                player.x1, player.y1, player.x2, player.y2, width=1, fill="green")
-            self.player.shape.canvas_id = new_player
+        self.delete(self.player.shape.canvas_id)
+        player = self.player.shape
+        move = valid__movable_area(
+            self, player.x2, player.y1, 'right', player)
+        if move != 0:
+            player.x1 = player.x1 + move
+            player.x2 = player.x2 + move
+        new_player = self.create_rectangle(
+            player.x1, player.y1, player.x2, player.y2, width=1, fill="green")
+        self.player.shape.canvas_id = new_player

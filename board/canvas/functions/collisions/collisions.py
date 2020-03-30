@@ -200,9 +200,39 @@ def valid_waypoint(self, waypoint):
     return self.pixels[waypoint.y1][waypoint.x1].is_movable_to
 
 
-def valid__movable_area(self, x1, y1, x2, y2):
-    for x_point in range(x1, x2 + 1):
-        for y_point in range(y1, y2 + 1):
-            if (self.pixels[y_point][x_point].is_movable_to == False):
-                return False
-    return True
+def valid__movable_area(self, x1, y1, direction, object, move=10):
+    for i in range(1, move + 1):
+        valid = True
+        if direction == 'right':
+            for j in range(0, object.height + 1):
+                if x1 + i >= self.width:
+                    return i - 2
+                else:
+                    if (self.pixels[y1 + j][x1 + i].is_movable_to == False):
+                        return i - 2
+
+        if direction == 'left':
+            for j in range(0, object.height + 1):
+                if x1 - i < 0:
+                    return i - 2
+                else:
+                    if (self.pixels[y1 + j][x1 - i].is_movable_to == False):
+                        return i - 2
+
+        if direction == 'down':
+            for j in range(0, object.width + 1):
+                if y1 + i >= self.height:
+                    return i - 2
+                else:
+                    if (self.pixels[y1 + i][x1 + j].is_movable_to == False):
+                        return i - 2
+
+        if direction == 'up':
+            for j in range(0, object.width + 1):
+                if y1 - i < 0:
+                    return i - 2
+                else:
+                    if (self.pixels[y1 - i][x1 + j].is_movable_to == False):
+                        return i - 2
+
+    return move
