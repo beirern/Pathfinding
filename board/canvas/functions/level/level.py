@@ -3,6 +3,7 @@ import re
 from board.canvas.enemy import Enemy
 from board.canvas.player import Player
 from board.canvas.shape import Shape
+from board.canvas.pathfinding.astar.pixel import Pixel
 from board.canvas.functions.level.draw import drawPlayers, draw_walls
 
 
@@ -23,6 +24,14 @@ def load(self, lines):
         self.enemy = Enemy(Shape(int(fields[0]), int(
             fields[1]), int(fields[2]), int(fields[3]), fields[4]))
 
+    # Set up array of Pixels
+    self.pixels = []
+    for i in range(self.height):
+        self.pixels.append([])
+        for j in range(self.width):
+            self.pixels[-1].append(Pixel(j,
+                                         i, i * len(self.pixels[0]) + j, True))
+
     # Fill Walls and Waypoints Array
     self.walls = []
     self.waypoints = {}
@@ -39,6 +48,7 @@ def load(self, lines):
             if object == 'WALL':
                 self.walls.append(Shape(int(fields[0]), int(
                     fields[1]), int(fields[2]), int(fields[3]), fields[4]))
+
             elif object == 'WAYPOINT':
                 curr_waypoint = Shape(int(fields[0]), int(
                     fields[1]), int(fields[2]), int(fields[3]), fields[4])
