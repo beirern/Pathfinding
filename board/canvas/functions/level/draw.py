@@ -36,19 +36,21 @@ def hide_waypoints(self):
 
 
 def drawPlayers(self):
-    playerShape = self.player.shape
+    if self.player != None:
+        playerShape = self.player.shape
 
-    if playerShape.shapeType == 'RECTANGLE':
-        # Draw Player
-        canvas_id = self.create_rectangle(
-            playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, fill="green")
-        self.player = Player(
-            Shape(playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, 'RECTANGLE', canvas_id))
+        if playerShape.shapeType == 'RECTANGLE':
+            # Draw Player
+            canvas_id = self.create_rectangle(
+                playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, fill="green")
+            self.player = Player(
+                Shape(playerShape.x1, playerShape.y1, playerShape.x2, playerShape.y2, 'RECTANGLE', canvas_id))
 
-    enemyShape = self.enemy.shape
-    if enemyShape.shapeType == 'RECTANGLE':
-        # Draw Enemy
-        canvas_id = self.create_rectangle(
-            enemyShape.x1, enemyShape.y1, enemyShape.x2, enemyShape.y2, fill="red")
-        self.enemy = Enemy(
-            Shape(enemyShape.x1, enemyShape.y1, enemyShape.x2, enemyShape.y2, 'RECTANGLE', canvas_id))
+    if self.enemy != None:
+        enemyShape = self.enemy.shape
+        if enemyShape.shapeType == 'RECTANGLE':
+            # Draw Enemy
+            canvas_id = self.create_rectangle(
+                enemyShape.x1, enemyShape.y1, enemyShape.x2, enemyShape.y2, fill="red")
+            self.enemy = Enemy(
+                Shape(enemyShape.x1, enemyShape.y1, enemyShape.x2, enemyShape.y2, 'RECTANGLE', canvas_id))

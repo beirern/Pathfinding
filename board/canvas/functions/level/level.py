@@ -17,10 +17,11 @@ def load(self, lines):
 
     # Make Enemy
     enemy_line = lines[1].strip()
-    fields = re.split('\s', enemy_line)
+    if enemy_line != 'None':
+        fields = re.split('\s', enemy_line)
 
-    self.enemy = Enemy(Shape(int(fields[0]), int(
-        fields[1]), int(fields[2]), int(fields[3]), fields[4]))
+        self.enemy = Enemy(Shape(int(fields[0]), int(
+            fields[1]), int(fields[2]), int(fields[3]), fields[4]))
 
     # Fill Walls and Waypoints Array
     self.walls = []
