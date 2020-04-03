@@ -7,19 +7,18 @@ from .pathfinderResult import PathfinderResult
 class PathfinderSolver:
     def __init__(self, graph):
         self.graph = graph
-        self.queue = []
-        self.dist_to = {}
-        self.previous = {}
-        self.minutes = 0
         self.timeout = False
 
     # Finds the shortest path from a start pixel to an end pixel
     def findShortestPath(self, start, end):
+        self.queue = []
+        self.dist_to = {}
+        self.previous = {}
         solution = []
 
-        # Timeout will be called after 10 minutes
+        # Timeout will be called after 2 seconds
         # Each minute
-        self.timeout_timer = threading.Timer(2.0, self.time_up)
+        self.timeout_timer = threading.Timer(1000 * 2000.0, self.time_up)
 
         self.timeout_timer.start()
         print("Starting Search...")
@@ -72,7 +71,7 @@ class PathfinderSolver:
         self.timeout_timer.cancel()
         return PathfinderResult([], "UNSOLVED", 0)
 
-    # Timeout after 10 minutes
+    # Timeout after 2 seconds
     def time_up(self):
         self.timeout_timer.cancel()
         self.timeout = True
