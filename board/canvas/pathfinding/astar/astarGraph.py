@@ -20,10 +20,17 @@ class AstarGraph:
     # (0, 2) -> [WE(0, 1), WE(1,2), WE(0, 3), None]
     def fillEdges(self):
         for waypoint in self.waypoints:
-            self.edges[self.pixels[waypoint.y1][waypoint.x1]] = []
+            waypoint_pixel = self.pixels[waypoint.y1][waypoint.x1]
+            if waypoint_pixel not in self.edges:
+                self.edges[waypoint_pixel] = []
             for end_point in self.waypoints[waypoint]:
-                self.edges[self.pixels[waypoint.y1][waypoint.x1]].append(WeightedEdge(self.pixels[waypoint.y1][waypoint.x1], self.pixels[end_point.y1][end_point.x1],
-                                                                                      math.sqrt(math.pow(waypoint.y1 - end_point.y1, 2) + math.pow(waypoint.y2 - end_point.y2, 2))))
+                end_point_pixel = self.pixels[end_point.y1][end_point.x1]
+                if end_point_pixel not in self.edges:
+                    self.edges[end_point_pixel] = []
+                self.edges[waypoint_pixel].append(WeightedEdge(waypoint_pixel, end_point_pixel, math.sqrt(
+                    math.pow(waypoint.y1 - end_point.y1, 2) + math.pow(waypoint.x1 - end_point.x1, 2))))
+                self.edges[end_point_pixel].append(WeightedEdge(end_point_pixel, waypoint_pixel, math.sqrt(
+                    math.pow(waypoint.y1 - end_point.y1, 2) + math.pow(waypoint.x1 - end_point.x1, 2))))
 
     # Returns valid neighbors
     # Returns the middle pixel in either direction of a valid direction
