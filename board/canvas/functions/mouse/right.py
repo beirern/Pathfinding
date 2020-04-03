@@ -11,9 +11,15 @@ def clearLast(self, event):
 
     if self.object == 'WAYPOINT':
         if (len(self.waypoints) > 0):
-            waypoint = self.waypoints.popitem()[0]
-            self.pixels[waypoint.y1][waypoint.x1].is_movable_to = True
+            waypoint = list(self.waypoints.keys())[-1]
+            for end_point in self.waypoints[waypoint]:
+                self.delete(end_point.canvas_id)
+            for other_waypoints in self.waypoints:
+                for end_point in self.waypoints[other_waypoints]:
+                    if end_point == waypoint:
+                        self.delete(end_point.canvas_id)
             self.delete(waypoint.canvas_id)
+            self.waypoints.popitem()
 
     if self.object == 'PLAYER':
         if self.player != None:
