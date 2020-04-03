@@ -114,8 +114,6 @@ def buttonOneRelease(self, event):
                 x, y, x, y, fill="yellow")
             self.waypoints[Shape(x, y, x, y, 'RECTANGLE', waypoint)] = []
 
-            self.pixels[y][x].is_movable_to = False
-
     if self.object == 'ARROW':
         if self.currRect:
             self.delete(self.currRect)
