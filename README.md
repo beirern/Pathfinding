@@ -23,20 +23,21 @@ It will save the level by whatever you called it. You can then load the level la
 button and pressing the *Load* button. YOU CAN EDIT AFTER LOADING JUST **CHECK EDITABLE** (THINK OF IT AS PUTTING IT INTO EDIT STATE).
 
 ### Movement:
-IF YOU HAVE  **UNCHECKED EDITABLE** (THINK OF IT AS PUTTING IT IN THE PLAY STATE), you can move the player if you made him (Green Rectangle).
+IF YOU HAVE  **UNCHECKED EDITABLE** (THINK OF IT AS PUTTING IT IN THE PLAY STATE), you can move the player if you made them (Green Rectangle).
 Press UP, DOWN, LEFT, and RIGHT. Cannot go through walls.
 
 ## How to Use
 1. `python mission_control.py`
-2. Select the object you want to draw from the sidebar on the right
-3. Draw some objects on space to left (At least player, enemy, and some waypoints with lines to get pathing to work)! Some Notes:
+2. Load a level (I provided *astar* as an example) or make your own!
+3. Select the object you want to draw from the sidebar on the right
+4. Draw some objects on space to left (At least player, enemy, and some waypoints with lines to get pathing to work)! Some Notes:
 * Nothing can be drawn on walls (it will not allow you)
 * Lines connect waypoints (it is used for pathing)
 * If a line is intersected by a wall it will not be drawn (vice versa too!)
 * **THE EDITABLE BOX MUST BE CHECKED TO EDIT**
-4. When you are done editing, **UNCHECK EDITABLE** and press **TAB** until it is focused on drawable space (canvas will be outlined)
-5. Press **ENTER** (or don't, you could always just move player around if that's your cup of tea)
-6. Press the **X** in the top right corner to close!
+5. When you are done editing, **UNCHECK EDITABLE** and press **TAB** until it is focused on drawable space (canvas will be outlined)
+6. Press **ENTER** (or don't, you could always just move player around if that's your cup of tea)
+7. Press the **X** in the top right corner to close!
 
 ## Tell Me a Story
 At one point in my life I wanted to make an AI that could follow around a player. In this case the AI and player would just
@@ -88,3 +89,5 @@ It's back on the path baby!
 ![Back on the Path](Screenshot5.PNG)
 Eventually the enemy catches up to the player. Doesn't do anything.
 ![The Game Ends](Screenshot7.PNG)
+
+ok.... bye
